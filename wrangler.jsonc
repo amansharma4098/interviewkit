@@ -26,9 +26,8 @@
   ],
   "vars": {
     "BUSINESS_NAME": "PrepTrick",
-    "RAZORPAY_KEY_ID": "rzp_live_SbfPAbtHNgFB2D",
-    "SUPPORT_EMAIL": "",
-    "CHECKOUT_ENABLED": "false",
+    "SUPPORT_EMAIL": "preptrick@gmail.com",
+    "CHECKOUT_ENABLED": "true",
   },
   "triggers": {
     "crons": ["0 3 * * *"],
