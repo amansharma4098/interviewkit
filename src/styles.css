@@ -1521,6 +1521,49 @@ dialog .success-icon ~ .button {
 .policy-content {
   margin-bottom: 20px;
 }
+.information-page {
+  max-width: 800px;
+  padding-top: 40px;
+  padding-bottom: 64px;
+}
+.information-page .back-link {
+  margin-bottom: 30px;
+}
+.information-page h1 {
+  font-size: 32px;
+  line-height: 1.25;
+  margin-bottom: 24px;
+}
+.information-page .policy-content h3 {
+  font-size: 18px;
+}
+.information-page .policy-content p {
+  font-size: 15px;
+  line-height: 1.8;
+}
+.information-page .modal-description {
+  margin-bottom: 24px;
+}
+.information-page input,
+.information-page textarea {
+  width: 100%;
+}
+.information-page input {
+  min-height: 44px;
+}
+.information-page textarea {
+  min-height: 150px;
+}
+.footer-bottom > div {
+  flex-wrap: wrap;
+}
+.footer-bottom a {
+  font-size: inherit;
+  color: inherit;
+}
+.footer-bottom a:hover {
+  text-decoration: underline;
+}
 .code-field {
   font-family: monospace;
   font-size: 13px;

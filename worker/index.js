@@ -414,6 +414,20 @@ async function route(request, env) {
   // Only explicitly public paths reach the asset binding. Full PDFs have no public route.
   if (request.method === "GET" || request.method === "HEAD") {
     if (
+      [
+        "/about",
+        "/contact",
+        "/privacy",
+        "/terms",
+        "/refunds",
+        "/pricing",
+      ].includes(path)
+    ) {
+      return env.ASSETS.fetch(
+        new Request(new URL("/", request.url), request),
+      );
+    }
+    if (
       path === "/" ||
       path === "/index.html" ||
       /^\/assets\/[A-Za-z0-9_.-]+$/.test(path) ||

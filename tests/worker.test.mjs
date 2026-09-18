@@ -175,6 +175,32 @@ test("checkout stays off without all launch credentials", async () => {
   );
   assert.equal((await worker.fetch(post("/api/orders", {}), env)).status, 503);
 });
+test("business and policy URLs serve the app shell without widening the public allowlist", async () => {
+  const env = environment({
+    ASSETS: {
+      fetch: async (request) => new Response(new URL(request.url).pathname),
+    },
+  });
+  for (const path of [
+    "/about",
+    "/contact",
+    "/privacy",
+    "/terms",
+    "/refunds",
+    "/pricing",
+  ]) {
+    const response = await worker.fetch(request(path), env);
+    assert.equal(response.status, 200);
+      assert.equal(await response.text(), "/");
+  }
+  for (const path of [
+    "/unknown",
+    "/about/private.pdf",
+    "/pricing/software-engineer.pdf",
+  ]) {
+    assert.equal((await worker.fetch(request(path), env)).status, 404);
+  }
+});
 test("HMAC validation rejects forged or malformed signatures", async () => {
   assert.equal(
     await verifyHmac("test-secret", "hello", signature("hello")),

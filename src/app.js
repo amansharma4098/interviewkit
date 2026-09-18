@@ -427,6 +427,11 @@ async function performCheckout(form) {
 }
 
 const policies = {
+  about: {
+    title: "About PrepTrick",
+    content:
+      '<h3>Focused preparation for engineering interviews</h3><p>PrepTrick publishes original interview-preparation PDFs for software engineering, frontend, backend, AI, and system design. Each kit contains 50 questions, suggested answers, follow-up prompts, and a practice worksheet.</p><h3>Digital study material</h3><p>Kits are downloadable PDFs in English, priced individually in Indian rupees. There is no subscription and no physical shipment. A free fundamentals collection is available to read and download before purchasing.</p><h3>Independent and practical</h3><p>The material covers common engineering concepts and trade-offs. It is not affiliated with an employer and does not guarantee particular interview questions or hiring outcomes.</p><p><a class="text-button" href="/pricing">Browse kits and pricing</a></p>',
+  },
   privacy: {
     title: "Privacy",
     content:
@@ -444,15 +449,29 @@ const policies = {
   },
 };
 function policy(name) {
-  const p = policies[name];
-  if (p)
-    openModal(
-      `${closeButton()}<p class="eyebrow">PREPTRICK / THE DETAILS</p><h2 id="modal-title">${p.title}</h2><div class="policy-content">${p.content}</div><button class="text-button" data-action="support">Contact support ${icon("arrow-up-right")}</button>`,
-    );
+  if (policies[name]) location.href = `/${name}`;
+}
+function informationPage(name) {
+  const page = policies[name];
+  if (name === "contact") {
+    document.title = "Contact PrepTrick";
+    main.innerHTML = `<section class="wrap information-page"><a class="back-link" href="/#kits">${icon("arrow-left")}All interview kits</a><p class="eyebrow">PREPTRICK / CUSTOMER SUPPORT</p><h1>Get in touch.</h1>${supportForm()}</section>`;
+    return;
+  }
+  document.title = `${page.title} | PrepTrick`;
+  main.innerHTML = `<section class="wrap information-page"><a class="back-link" href="/#kits">${icon("arrow-left")}All interview kits</a><p class="eyebrow">PREPTRICK / THE DETAILS</p><h1>${page.title}</h1><div class="policy-content">${page.content}</div><a class="text-button" href="/contact">Contact support ${icon("arrow-up-right")}</a></section>`;
+}
+function supportForm() {
+  return `<p class="modal-description">A purchase question, a content correction, or a kit you'd like to see. Send it our way.</p><form id="support-form"><label class="field-label" for="support-email">Email address</label><input id="support-email" name="email" type="email" required maxlength="254" autocomplete="email" placeholder="you@example.com"><label class="field-label" for="support-subject">Subject</label><input id="support-subject" name="subject" required minlength="3" maxlength="120" placeholder="How can we help?"><label class="field-label" for="support-message">Message</label><textarea id="support-message" name="message" rows="5" required minlength="15" maxlength="4000" placeholder="Include your purchase reference if you have one. Never share your recovery code or payment credentials."></textarea><p class="form-hint">We store your message and email to handle this request.</p><p class="form-error" role="alert"></p><button class="button full" type="submit">Send request ${icon("arrow-up-right")}</button></form>`;
 }
 function support() {
+  const existing = main.querySelector("#support-email");
+  if (existing) {
+    existing.focus();
+    return;
+  }
   openModal(
-    `${closeButton()}<p class="eyebrow">WE'RE HERE TO HELP</p><h2 id="modal-title">Get in touch.</h2><p class="modal-description">A purchase question, a content correction, or a kit you'd like to see. Send it our way.</p><form id="support-form"><label class="field-label" for="support-email">Email address</label><input id="support-email" name="email" type="email" required maxlength="254" autocomplete="email" placeholder="you@example.com"><label class="field-label" for="support-subject">Subject</label><input id="support-subject" name="subject" required minlength="3" maxlength="120" placeholder="How can we help?"><label class="field-label" for="support-message">Message</label><textarea id="support-message" name="message" rows="5" required minlength="15" maxlength="4000" placeholder="Include your purchase reference if you have one. Never share your recovery code or payment credentials."></textarea><p class="form-hint">We store your message and email to handle this request.</p><p class="form-error" role="alert"></p><button class="button full" type="submit">Send request ${icon("arrow-up-right")}</button></form>`,
+    `${closeButton()}<p class="eyebrow">WE'RE HERE TO HELP</p><h2 id="modal-title">Get in touch.</h2>${supportForm()}`,
   );
 }
 
@@ -618,7 +637,7 @@ async function loadCatalog() {
 }
 function render() {
   if (modal.open) closeModal();
-  const route = location.hash.slice(1) || "kits";
+  const route = location.hash.slice(1) || location.pathname.slice(1) || "kits";
   document.querySelectorAll("[data-nav]").forEach((a) => {
     const current =
       a.dataset.nav === route ||
@@ -627,7 +646,9 @@ function render() {
     if (current) a.setAttribute("aria-current", "page");
     else a.removeAttribute("aria-current");
   });
-  if (route === "fundamentals") {
+  if (Object.hasOwn(policies, route) || route === "contact") {
+    informationPage(route);
+  } else if (route === "fundamentals") {
     document.title = "Free interview questions | PrepTrick";
     fundamentalsPage();
   } else if (route === "library") {

@@ -124,9 +124,63 @@ try {
     ),
     true,
   );
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const [path, title] of Object.entries({
+      about: "About PrepTrick",
+      contact: "Get in touch.",
+      privacy: "Privacy",
+      terms: "Terms of use",
+      refunds: "Refunds & delivery",
+      pricing: "Interview prep kits.",
+    })) {
+      const response = await page.goto(`${base}/${path}`, {
+        waitUntil: "networkidle",
+      });
+      assert.equal(response.status(), 200);
+      await page
+        .getByRole("heading", { level: 1, name: title, exact: true })
+        .waitFor();
+      assert.equal(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+        true,
+        `Overflow on ${path} at ${width}`,
+      );
+      if (path === "contact") {
+        await page
+          .getByRole("button", { name: "Get in touch", exact: true })
+          .click();
+        assert.equal(await page.locator("#support-form").count(), 1);
+        assert.equal(await page.locator("dialog[open]").count(), 0);
+      }
+      if (["contact", "terms"].includes(path))
+        await page.screenshot({
+          path: `test-results/${path}-${width}.png`,
+          fullPage: true,
+        });
+    }
+  }
+  await page.getByRole("link", { name: "Privacy", exact: true }).click();
+  await page
+    .getByRole("heading", { level: 1, name: "Privacy", exact: true })
+    .waitFor();
+  await page.reload({ waitUntil: "networkidle" });
+  await page
+    .getByRole("heading", { level: 1, name: "Privacy", exact: true })
+    .waitFor();
+  await page.getByRole("link", { name: "Interview kits", exact: true }).click();
+  await page
+    .getByRole("heading", {
+      level: 1,
+      name: "Interview prep kits.",
+      exact: true,
+    })
+    .waitFor();
   assert.deepEqual(errors, []);
   console.log(
-    "Browser checks passed: catalog, filtering, previews, no notify button, free-sample action, 50-question practice progress, library, PDF download, responsive layout, and console.",
+    "Browser checks passed: catalog, filtering, previews, no notify button, free-sample action, 50-question practice progress, library, PDF download, direct business/policy pages, responsive layout, and console.",
   );
 } finally {
   await browser.close();

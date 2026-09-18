@@ -6,6 +6,8 @@ Live site: https://preptrick.amansharma4098.workers.dev
 
 The catalog, samples, free PDF, and D1-backed forms are deployed. Paid checkout remains disabled pending the owner's Razorpay configuration, support address, and seller-policy review.
 
+Public review links are `/about`, `/pricing`, `/contact`, `/terms`, `/privacy`, and `/refunds`. These routes open directly and are linked from the footer. The contact form saves requests in D1; it does not send email. No seller identity or support email is invented when those details have not been provided. Razorpay website review is separate from API credentials and does not generate a new secret for each website.
+
 ## Included
 
 | Kit | Experience | Price | Q&As | Pages |
