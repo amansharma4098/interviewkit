@@ -41,27 +41,27 @@ try {
     .waitFor();
   await page.locator(".question-row summary").first().click();
   assert.ok(await page.locator(".question-answer").first().isVisible());
-  await page.getByRole("button", { name: "Notify me at launch" }).click();
-  await page.getByRole("heading", { name: "Be first in line." }).waitFor();
-  await page.screenshot({ path: "test-results/checkout.png", fullPage: false });
-  if (!process.env.SITE_URL) {
-    await page
-      .getByLabel("Email address", { exact: true })
-      .fill("browser-test@example.test");
-    await page.locator('#checkout-form input[type="checkbox"]').check();
-    await page.getByRole("button", { name: "Register interest" }).click();
-    await page.getByRole("heading", { name: "You're on the list." }).waitFor();
-  }
-  await page.keyboard.press("Escape");
+  assert.equal(
+    await page.getByRole("button", { name: /Notify me/ }).count(),
+    0,
+  );
+  const downloadPromise = page.waitForEvent("download");
+  await page
+    .getByRole("link", { name: "Download free sample", exact: true })
+    .click();
+  const download = await downloadPromise;
+  assert.equal(await download.failure(), null);
+  assert.match(download.suggestedFilename(), /fundamentals.*\.pdf$/);
+  assert.equal(await page.locator("dialog[open]").count(), 0);
   await page.getByRole("link", { name: /Free questions/ }).click();
   await page.getByRole("heading", { name: "Get the basics right." }).waitFor();
-  await page.locator(".question-row").nth(11).waitFor();
-  assert.equal(await page.locator(".question-row").count(), 12);
+  await page.locator(".question-row").nth(49).waitFor();
+  assert.equal(await page.locator(".question-row").count(), 50);
   await page.locator(".question-row summary").first().click();
   await page.getByLabel("I've practiced this answer").first().check();
   assert.equal(
     await page.locator("#practice-progress").textContent(),
-    "1 / 12 practiced",
+    "1 / 50 practiced",
   );
   const sample = await page.request.get(`${base}/samples/fundamentals.pdf`);
   assert.equal(sample.status(), 200);
@@ -126,7 +126,7 @@ try {
   );
   assert.deepEqual(errors, []);
   console.log(
-    "Browser checks passed: catalog, filtering, previews, launch modal, practice progress, library, PDF download, responsive layout, and console.",
+    "Browser checks passed: catalog, filtering, previews, no notify button, free-sample action, 50-question practice progress, library, PDF download, responsive layout, and console.",
   );
 } finally {
   await browser.close();

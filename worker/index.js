@@ -354,7 +354,7 @@ async function route(request, env) {
     const order = await receipt(request, env);
     if (order.status !== "paid" || path !== `/downloads/${order.kit_id}`)
       fail(403, "A completed purchase is required for this kit.");
-    const response = await pdf(env, request, order.kit_id);
+    const response = await pdf(env, order.kit_id);
     if (response.ok)
       await env.DB.prepare(
         "UPDATE orders SET download_count = download_count + 1 WHERE id = ?",
@@ -364,7 +364,7 @@ async function route(request, env) {
     return response;
   }
   if (request.method === "GET" && path === "/samples/fundamentals.pdf")
-    return pdf(env, request, "fundamentals");
+    return pdf(env, "fundamentals");
   if (request.method === "POST" && path === "/api/subscribe") {
     await rateLimit(request, env, "subscribe", 6);
     const input = await body(request);
@@ -424,11 +424,14 @@ async function route(request, env) {
   }
   return json({ error: "Page not found." }, 404);
 }
-async function pdf(env, request, id) {
-  const asset = await env.ASSETS.fetch(
-    new Request(new URL(`/_private/${id}.pdf`, request.url)),
-  );
-  if (!asset.ok)
+async function pdf(env, id) {
+  const file = await env.DB.prepare(
+    "SELECT object_key, byte_size, sha256 FROM kit_files WHERE kit_id = ?",
+  )
+    .bind(id)
+    .first();
+  const asset = file ? await env.PDFS.get(file.object_key) : null;
+  if (!asset || asset.size !== file.byte_size)
     fail(
       503,
       "This PDF is temporarily unavailable. Contact support with your purchase reference.",
@@ -436,6 +439,7 @@ async function pdf(env, request, id) {
   return new Response(asset.body, {
     headers: {
       "Content-Type": "application/pdf",
+      "Content-Length": String(asset.size),
       "Content-Disposition": `attachment; filename="PrepTrick-${id}.pdf"`,
       "Cache-Control": "private, no-store",
       "X-Content-Type-Options": "nosniff",

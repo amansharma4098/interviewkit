@@ -191,6 +191,234 @@
       "How do you prevent SQL injection?",
       "Use parameterized queries so data is bound separately from SQL syntax. Validate input shapes as well, but escaping or validation alone is not a substitute. Parameters usually cannot stand in for table names or sort directions; select those from a fixed allowlist. Give the database account only the permissions the application needs.",
       "How would you safely implement user-selectable sorting?"
+    ],
+    [
+      "Foundations",
+      "What does amortized constant time mean?",
+      "An operation can occasionally be expensive while its average cost across a sequence of operations remains bounded. A dynamic array may copy all elements during resizing, but geometric growth spreads that cost across many appends, making append amortized O(1). This is different from assuming a probability distribution over inputs.",
+      "Why would growing an array by exactly one slot on every append be inefficient?"
+    ],
+    [
+      "Foundations",
+      "What makes a sort stable?",
+      "A stable sort preserves the original relative order of records whose sort keys compare equal. Stability matters when a previous order is meaningful, such as sorting employees by department after sorting by joining date. Stability is separate from time complexity and whether the algorithm works in place.",
+      "How would you verify stability using records with the same score but different IDs?"
+    ],
+    [
+      "Foundations",
+      "When is recursion a good fit?",
+      "Recursion expresses a problem in terms of smaller instances and fits trees, backtracking, and divide-and-conquer. It needs a base case and progress toward it. Each call may consume stack space, so deep inputs can fail even when the algorithm is logically correct. An explicit stack can provide more control.",
+      "What base case stops a recursive traversal of an empty tree?"
+    ],
+    [
+      "Foundations",
+      "What is an invariant?",
+      "An invariant is a property that remains true at a defined point in an algorithm or system. In insertion sort, the processed prefix remains sorted. State the invariant, show initialization and preservation, and explain how termination yields the result. Invariants make reasoning more precise than tracing only one successful example.",
+      "State an invariant for a queue that tracks both head and tail indices."
+    ],
+    [
+      "Foundations",
+      "How do a set and a multiset differ?",
+      "A set records unique membership. A multiset additionally records how many times each value appears. Deduplicating a list can use a set, while counting letters for an anagram comparison needs frequencies. Choosing a set when multiplicity matters can silently accept an incorrect answer.",
+      "Why are the strings aab and abb not anagrams despite sharing the same set of letters?"
+    ],
+    [
+      "Foundations",
+      "What is a heap data structure?",
+      "A binary heap maintains a parent-child ordering property so the minimum or maximum element is available at the root. Insertion and removing the root are O(log n), while peeking is O(1). The entire array is not sorted, and looking up an arbitrary value is not generally logarithmic.",
+      "Why is a min-heap useful for keeping the largest k values seen so far?"
+    ],
+    [
+      "Foundations",
+      "What is the difference between a tree and a general graph?",
+      "An undirected tree is connected and acyclic, so exactly one simple path connects any two vertices. General graphs may contain cycles, disconnected components, and multiple paths. Rooted trees add parent-child structure. Graph traversal usually needs visited tracking; tree algorithms can exploit their stronger structural assumptions.",
+      "How many edges does an undirected tree with n vertices have?"
+    ],
+    [
+      "Foundations",
+      "What is a base case in dynamic programming?",
+      "A base case gives a known result for the smallest state so later transitions have a valid starting point. For counting ways to make total zero using no selections, the answer is often one, representing the empty choice. The correct value depends on the state definition, not a universal rule to initialize everything to zero.",
+      "Why might a minimum-cost problem initialize unreachable states to infinity?"
+    ],
+    [
+      "Foundations",
+      "What does a mutex protect?",
+      "A mutex provides mutual exclusion around a critical section so cooperating threads do not execute it simultaneously. It protects the shared invariant only if every relevant access follows the locking rule. Keep the protected scope correct and avoid holding locks during slow unrelated work. A mutex does not automatically prevent all deadlocks.",
+      "Why can locking only the write fail to protect a read-modify-write operation?"
+    ],
+    [
+      "Foundations",
+      "What is a deadlock?",
+      "A deadlock occurs when tasks wait on resources in a cycle and none can proceed. A common example is two threads acquiring two locks in opposite order. Consistent acquisition order, shorter critical sections, and appropriate timeouts or detection reduce the problem. A timeout is recovery behavior, not proof the cycle cannot occur.",
+      "Draw the wait relationship when thread A holds lock 1 and thread B holds lock 2."
+    ],
+    [
+      "Foundations",
+      "How are concurrency and parallelism different?",
+      "Concurrency means multiple tasks make progress over overlapping periods; parallelism means tasks execute at the same time. An event loop can handle concurrent I/O on one thread without running JavaScript callbacks in parallel. Choosing between threads, processes, or async I/O depends on the work and runtime.",
+      "Why can asynchronous I/O help a server even on a single CPU core?"
+    ],
+    [
+      "Foundations",
+      "What is a memory leak in a garbage-collected language?",
+      "Garbage collection reclaims unreachable objects, not objects that the application no longer needs but still references. An unbounded cache, retained event listener, or growing queue can therefore leak memory logically. Inspect what keeps objects reachable and compare retained memory over repeated workloads.",
+      "How could a global list of completed requests retain large response bodies?"
+    ],
+    [
+      "Foundations",
+      "Why does locality improve performance?",
+      "Accessing nearby or recently used memory makes effective use of CPU caches and reduces slower memory accesses. An array scan often has better spatial locality than following separately allocated linked nodes. The effect depends on data size and hardware, so asymptotic complexity should be complemented by measurement.",
+      "Why can two O(n) algorithms have very different real runtimes?"
+    ],
+    [
+      "Foundations",
+      "What is a checksum useful for?",
+      "A checksum or cryptographic digest summarizes bytes so copies can be compared for accidental changes. A cryptographic hash such as SHA-256 also makes deliberate collision construction impractical under its intended assumptions. A hash alone does not authenticate who supplied a file; that requires a trusted reference, signature, or authenticated channel.",
+      "How would you verify a PDF after uploading it to object storage?"
+    ],
+    [
+      "Object-oriented design",
+      "How do an interface and an implementation differ?",
+      "An interface describes the operations and guarantees callers can rely on. An implementation supplies the mechanism that fulfills that contract. Separating them can permit testing or replacement, but an abstraction is useful only when it expresses a meaningful stable boundary. Language-specific interface features vary.",
+      "What contract should a storage interface define when a requested file does not exist?"
+    ],
+    [
+      "Object-oriented design",
+      "What is dependency injection?",
+      "Dependency injection supplies an object's collaborators from outside instead of having it create them internally. A service can receive a clock or payment client, making behavior configurable and testable. A framework is optional; passing dependencies through a constructor or function parameter is already injection.",
+      "How does an injected clock make expiry tests more reliable?"
+    ],
+    [
+      "Object-oriented design",
+      "What is the single-responsibility principle?",
+      "A component should have a coherent responsibility and a clear reason to change. Mixing invoice calculation, HTML formatting, and email transport can couple unrelated changes. The principle is a design guide, not a demand for one-line classes. Split code when ownership and change patterns justify the boundary.",
+      "Which part should change when only the email provider is replaced?"
+    ],
+    [
+      "Object-oriented design",
+      "How do value equality and reference equality differ?",
+      "Value equality asks whether two objects represent the same value under a defined comparison. Reference equality asks whether they are the same object instance. Languages and types choose different defaults, especially for collections and records. Hashing must agree with the equality contract when values are used as map keys.",
+      "Should two separately created date values for the same day compare equal in your domain?"
+    ],
+    [
+      "Object-oriented design",
+      "What is a pure function?",
+      "A pure function's result depends only on its inputs and it has no observable side effects. This makes it easier to test and reuse, but most applications still need effectful boundaries for storage and networking. Keep calculations pure where practical and make external effects explicit.",
+      "Why is a function that reads the current time not pure unless time is passed in?"
+    ],
+    [
+      "Object-oriented design",
+      "Why should resources be released reliably?",
+      "Files, connections, locks, and subscriptions have lifetimes that need deliberate cleanup. Use language mechanisms such as context managers, try/finally, or scoped resource management so exceptions do not skip release. Garbage collection is not a reliable substitute for timely release of every external resource.",
+      "What happens if a connection is not returned to its pool after an error?"
+    ],
+    [
+      "Databases",
+      "What is a composite key?",
+      "A composite key uses multiple columns together to identify a row uniquely. For example, (user_id, course_id) can identify one enrollment. A separate unique constraint may express the same business identity alongside a surrogate primary key. Choose based on relationships, query patterns, and update behavior.",
+      "Why would making user_id alone unique prevent a user from taking several courses?"
+    ],
+    [
+      "Databases",
+      "How do DELETE and TRUNCATE differ?",
+      "DELETE removes selected rows and can use a WHERE clause. TRUNCATE removes all rows through a database-specific operation that often has different locking, logging, identity-reset, and foreign-key behavior. Transaction and trigger semantics vary by engine. Do not assume TRUNCATE is always non-transactional or safe in a shared environment.",
+      "Which operation fits removing only expired sessions?"
+    ],
+    [
+      "Databases",
+      "Why does SELECT need ORDER BY for predictable ordering?",
+      "Without ORDER BY, SQL does not promise the order of result rows. An apparent order can change with indexes, plans, or concurrent activity. Add an explicit ordering and a unique tie-breaker when stable pagination matters. Ordering by a nonunique timestamp alone still leaves ties unspecified.",
+      "What second ordering column could make a timestamp-based feed deterministic?"
+    ],
+    [
+      "Databases",
+      "How do COUNT(*) and COUNT(column) differ?",
+      "COUNT(*) counts rows in the selected group. COUNT(column) counts rows where that expression is not NULL. COUNT(DISTINCT column) counts distinct non-null values. Choose the expression that matches the business question, especially after outer joins where unmatched related columns become NULL.",
+      "Why can COUNT(*) report one row for a customer with no orders after a LEFT JOIN?"
+    ],
+    [
+      "Databases",
+      "What is a database transaction boundary?",
+      "The boundary defines which database changes commit or roll back together. Put changes that enforce one invariant in the same appropriate transaction, and keep the work short. An external network call is not automatically covered by that transaction. Its outcome may need an outbox, compensation, or reconciliation.",
+      "Should sending a confirmation email happen before the order transaction commits?"
+    ],
+    [
+      "Databases",
+      "What is a database migration?",
+      "A migration is a versioned change to schema or data that lets environments evolve predictably. Review compatibility with both old and new application versions, locking behavior, and rollback limits. Large backfills should usually run in bounded batches. A migration file that works on an empty database may behave differently on production-sized data.",
+      "How would you add a required column without breaking existing rows or old application instances?"
+    ],
+    [
+      "Databases",
+      "When would you choose a document database?",
+      "A document model can fit data commonly read and updated as one aggregate with a natural nested shape. Consider indexing, document growth, transaction scope, and duplication across aggregates. It is not automatically schema-free; the application still relies on structure and validation. Compare real access patterns before choosing a store.",
+      "What becomes harder if customers appear as duplicated embedded data in thousands of documents?"
+    ],
+    [
+      "Databases",
+      "How are a backup and a replica different?",
+      "A replica maintains a copy for availability or read capacity, often reproducing changes quickly. A backup preserves recoverable data from a point in time. A mistaken delete can replicate too, so replication alone does not replace backups. Test restores and define acceptable data loss and recovery time.",
+      "Which copy helps if a bad script deleted records yesterday?"
+    ],
+    [
+      "Web essentials",
+      "What does DNS do?",
+      "DNS resolves names into records such as IP addresses and other service information through a distributed hierarchy and caches. TTLs influence caching, but updates do not necessarily reach every client instantly. DNS resolution is one part of a request path; a successful lookup does not prove the application is healthy.",
+      "Why can a domain change appear to work for one user but not another immediately?"
+    ],
+    [
+      "Web essentials",
+      "What is the difference between a URL path and a query string?",
+      "The path identifies a route or resource within an origin, while query parameters commonly carry filters, pagination, or other request options. Both require parsing and validation. Sensitive credentials should generally not be placed in URLs because URLs can appear in history, logs, and referrer information.",
+      "Where should a private purchase-recovery token be sent instead of a download URL?"
+    ],
+    [
+      "Web essentials",
+      "How do 401 and 403 status codes differ?",
+      "401 indicates that valid authentication credentials are required or were not accepted. 403 means the server refuses the requested action, often because the authenticated caller lacks permission. Some systems intentionally return 404 to avoid revealing that a protected resource exists. Keep the policy consistent and do not expose sensitive detail in errors.",
+      "What should happen when a logged-in user requests another customer's invoice?"
+    ],
+    [
+      "Web essentials",
+      "What is idempotency?",
+      "An operation is idempotent when repeating it has the same intended effect as performing it once. Setting a flag to true is idempotent; incrementing a counter is not without additional deduplication. Responses can differ while the effect remains idempotent. For payments, a stable operation key helps resolve retries after an uncertain response.",
+      "Why is generating a new operation key on every retry unsafe?"
+    ],
+    [
+      "Web essentials",
+      "What does a reverse proxy do?",
+      "A reverse proxy receives requests on behalf of application servers and forwards them according to routing rules. It may handle TLS, caching, compression, balancing, or access controls. Forwarded headers must be trusted only from known proxies. Consider how timeouts and body limits interact across the proxy and application.",
+      "Why should an application not trust any client's X-Forwarded-For value as its real IP?"
+    ],
+    [
+      "Web essentials",
+      "How do sessions and cookies relate?",
+      "A cookie is a browser storage and transport mechanism; a session is an application concept for maintaining state or identity across requests. A cookie often carries a session identifier that the server maps to session state. Secure attributes and expiration matter, but every protected action still needs authorization.",
+      "Why should a session identifier be regenerated after a sensitive authentication transition?"
+    ],
+    [
+      "Web essentials",
+      "What is JSON, and what types does it support?",
+      "JSON represents objects, arrays, strings, numbers, booleans, and null. It does not directly represent functions, undefined, dates as a special type, or arbitrary-precision integers in a portable way. Define a schema and serialization rules for values such as timestamps and money. Parsing valid JSON does not establish that its business content is valid.",
+      "Why can a very large integer lose precision when consumed by JavaScript?"
+    ],
+    [
+      "Web essentials",
+      "What does HTTP caching need besides a stored response?",
+      "A cache needs rules for identity, freshness, validation, and whether a response may be shared. Cache-Control, validators such as ETag, and representation dimensions all matter. Private user data must not be served under a key shared by unrelated users. A cached success response can still be incorrect for the next caller.",
+      "How does the meaning of no-store differ from requiring revalidation?"
+    ],
+    [
+      "Web essentials",
+      "Why should the server calculate the checkout price?",
+      "The browser is controlled by the customer, so any submitted amount can be changed. The server should map an approved product ID to its authoritative price and verify the provider's captured amount and currency before delivery. Client display values improve usability but do not authorize a discount or prove payment.",
+      "What test would demonstrate that submitting amount = 1 cannot buy a INR 500 kit?"
+    ],
+    [
+      "Web essentials",
+      "Why are secrets different from public configuration values?",
+      "Public configuration, such as a payment checkout key ID, may identify an integration without granting the authority of its matching secret. A secret enables privileged operations and must stay on the server or in a secret manager. Use matching credential pairs, limit permissions, rotate exposed secrets, and keep them out of client bundles and public repositories.",
+      "Why can two different live Razorpay key IDs not be mixed with one arbitrary secret?"
     ]
   ]
 }

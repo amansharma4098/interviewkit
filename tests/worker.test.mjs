@@ -13,6 +13,17 @@ function database() {
       "utf8",
     ),
   );
+  db.exec(
+    readFileSync(
+      new URL("../migrations/0002_kit_files.sql", import.meta.url),
+      "utf8",
+    ),
+  );
+  for (const id of ["fundamentals", "software-engineer"]) {
+    db.prepare(
+      "INSERT INTO kit_files (kit_id, object_key, byte_size, sha256, updated_at) VALUES (?, ?, ?, ?, ?)",
+    ).run(id, `kits/${id}/test.pdf`, 13, "a".repeat(64), 1234);
+  }
   const prepare = (sql) => {
     let params = [];
     return {
@@ -47,13 +58,11 @@ function database() {
 function environment(extra = {}) {
   return {
     DB: database(),
+    PDFS: {
+      get: async () => ({ body: "%PDF-1.4 test\n", size: 13 }),
+    },
     ASSETS: {
-      fetch: async (request) =>
-        new Response(
-          new URL(request.url).pathname.includes("_private")
-            ? "%PDF-1.4 test"
-            : "<html>PrepTrick</html>",
-        ),
+      fetch: async () => new Response("<html>PrepTrick</html>"),
     },
     CHECKOUT_ENABLED: "true",
     SUPPORT_EMAIL: "support@example.test",
@@ -122,6 +131,40 @@ test("catalog has required prices and only three sample answers per kit", async 
     [200, 400, 500, 500],
   );
   assert.ok(result.kits.every((k) => k.samples.length === 3));
+  assert.ok(result.kits.every((k) => k.questions >= 50));
+});
+test("the free collection has at least 50 unique questions and answers", async () => {
+  const { questions } = await (
+    await worker.fetch(request("/api/fundamentals"), environment())
+  ).json();
+  assert.ok(questions.length >= 50);
+  assert.equal(new Set(questions.map((q) => q[1])).size, questions.length);
+  assert.ok(questions.every((q) => q.length >= 4 && q[2].length > 50));
+});
+test("PDF delivery requires valid D1 metadata and a matching private R2 object", async () => {
+  for (const condition of [
+    "missing-metadata",
+    "missing-object",
+    "wrong-size",
+  ]) {
+    const env = environment({
+      ASSETS: {
+        fetch: () => {
+          throw Error("No static PDF fallback is allowed");
+        },
+      },
+    });
+    if (condition === "missing-metadata")
+      await env.DB.prepare("DELETE FROM kit_files").run();
+    if (condition === "missing-object") env.PDFS.get = async () => null;
+    if (condition === "wrong-size")
+      env.PDFS.get = async () => ({ body: "truncated", size: 9 });
+    assert.equal(
+      (await worker.fetch(request("/samples/fundamentals.pdf"), env)).status,
+      503,
+      condition,
+    );
+  }
 });
 test("checkout stays off without all launch credentials", async () => {
   const env = environment({ RAZORPAY_WEBHOOK_SECRET: "" });
@@ -230,6 +273,11 @@ test("private static assets cannot bypass purchase checks, including encoded pat
 });
 test("unpaid users and wrong kit requests cannot download", async () => {
   const env = environment();
+  let storageReads = 0;
+  env.PDFS.get = async () => {
+    storageReads++;
+    return { body: "%PDF-1.4 test\n", size: 13 };
+  };
   await seed(env);
   assert.equal(
     (await worker.fetch(request("/downloads/software-engineer"), env)).status,
@@ -263,6 +311,11 @@ test("unpaid users and wrong kit requests cannot download", async () => {
       headers: { Authorization: `Bearer ${token}` },
     }),
     env,
+  );
+  assert.equal(
+    storageReads,
+    1,
+    "Only the authorized request should read private storage",
   );
   assert.equal(download.status, 200);
   assert.equal(download.headers.get("Cache-Control"), "private, no-store");

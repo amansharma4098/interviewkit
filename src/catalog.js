@@ -19,8 +19,8 @@ export const kits = [
       "Coding patterns",
       "Interview practice",
     ],
-    questions: 30,
-    pages: 0,
+    questions: 50,
+    pages: 28,
   },
   {
     id: "senior-software-engineer",
@@ -42,8 +42,8 @@ export const kits = [
       "Reliability",
       "Technical ownership",
     ],
-    questions: 30,
-    pages: 0,
+    questions: 50,
+    pages: 28,
   },
   {
     id: "ai-engineer",
@@ -60,8 +60,8 @@ export const kits = [
     description:
       "ML foundations, LLM systems, evaluation, and responsible AI deployment.",
     topics: ["Machine learning", "LLMs & RAG", "Evaluation", "MLOps"],
-    questions: 30,
-    pages: 0,
+    questions: 50,
+    pages: 28,
   },
   {
     id: "system-design",
@@ -83,8 +83,8 @@ export const kits = [
       "Case studies",
       "Trade-off analysis",
     ],
-    questions: 30,
-    pages: 0,
+    questions: 50,
+    pages: 28,
   },
   {
     id: "frontend-engineer",
@@ -101,8 +101,8 @@ export const kits = [
     description:
       "JavaScript, React, accessibility, and fast, resilient user experiences.",
     topics: ["JavaScript", "React", "Web performance", "Accessibility"],
-    questions: 24,
-    pages: 0,
+    questions: 50,
+    pages: 28,
   },
   {
     id: "backend-engineer",
@@ -119,8 +119,8 @@ export const kits = [
     description:
       "APIs, data modeling, security, and the operational side of backend work.",
     topics: ["API design", "SQL", "Security", "Operations"],
-    questions: 24,
-    pages: 0,
+    questions: 50,
+    pages: 28,
   },
 ];
 export const money = (amount) =>

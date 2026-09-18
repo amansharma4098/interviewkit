@@ -12,5 +12,3 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
-        env:
-          PREPTRICK_PUBLIC_BUILD: '1'

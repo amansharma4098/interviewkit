@@ -10,5 +10,6 @@ test-results/
 .DS_Store
 # Paid study material is deployed privately, never published to the public source repo.
 content/questions.json
+content/technical-questions.json
 output/pdf/*.pdf
 !output/pdf/fundamentals.pdf

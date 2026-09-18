@@ -213,10 +213,10 @@ function catalogPage() {
   main.innerHTML = `<section class="catalog-intro wrap"><div><p class="eyebrow"><span></span>PREPARE WITH PURPOSE</p><h1>Interview prep kits<span>.</span></h1><p class="intro-copy">Know the fundamentals. Understand the follow-ups.<br>Walk into your next interview with a clearer head.</p></div><div class="intro-note">${icon("book-open")}<div>Less searching.<br><strong>More understanding.</strong></div></div></section>
   <div class="trust-row wrap"><span>${icon("file-text")} Thoughtfully written Q&As</span><span>${icon("download")} PDFs to keep & revisit</span><span>${icon("check-check")} One purchase. No subscription.</span></div>
   <section class="catalog-layout wrap" aria-label="Browse interview kits">
-    <aside class="filters"><div class="filter-heading"><h2>Find your focus</h2><button class="icon-button" data-action="clear-filters" title="Reset filters" aria-label="Reset filters">${icon("refresh-cw")}</button></div><fieldset><legend>BY DISCIPLINE</legend>${["All kits", "Engineering", "AI & Data", "System Design"].map((c, i) => `<label class="category-option"><input type="radio" name="category" value="${c}" ${state.category === c ? "checked" : ""}><span>${icon(["layers", "code-2", "brain-circuit", "network"][i])}${c}</span><small>${c === "All kits" ? 6 : initialKits.filter((k) => k.category === c).length}</small></label>`).join("")}</fieldset><fieldset class="level-filter"><legend>EXPERIENCE</legend>${["All experience", "Early career", "Experienced", "All levels"].map((c) => `<label class="radio-option"><input type="radio" name="level" value="${c}" ${state.level === c ? "checked" : ""}><span>${c}</span></label>`).join("")}</fieldset><div class="sidebar-sample"><div class="sample-icon">${icon("book-open")}</div><h3>Start with the basics.</h3><p>12 fundamental questions.<br>Clear answers. On us.</p><a href="/samples/fundamentals.pdf" download>Free starter PDF ${icon("download")}</a></div></aside>
+    <aside class="filters"><div class="filter-heading"><h2>Find your focus</h2><button class="icon-button" data-action="clear-filters" title="Reset filters" aria-label="Reset filters">${icon("refresh-cw")}</button></div><fieldset><legend>BY DISCIPLINE</legend>${["All kits", "Engineering", "AI & Data", "System Design"].map((c, i) => `<label class="category-option"><input type="radio" name="category" value="${c}" ${state.category === c ? "checked" : ""}><span>${icon(["layers", "code-2", "brain-circuit", "network"][i])}${c}</span><small>${c === "All kits" ? 6 : initialKits.filter((k) => k.category === c).length}</small></label>`).join("")}</fieldset><fieldset class="level-filter"><legend>EXPERIENCE</legend>${["All experience", "Early career", "Experienced", "All levels"].map((c) => `<label class="radio-option"><input type="radio" name="level" value="${c}" ${state.level === c ? "checked" : ""}><span>${c}</span></label>`).join("")}</fieldset><div class="sidebar-sample"><div class="sample-icon">${icon("book-open")}</div><h3>Start with the basics.</h3><p>50 fundamental questions.<br>Clear answers. On us.</p><a href="/samples/fundamentals.pdf" download>Free starter PDF ${icon("download")}</a></div></aside>
     <div class="catalog-content"><div class="catalog-toolbar"><label class="search-box">${icon("search")}<input id="kit-search" type="search" placeholder="Search roles, skills, or topics" aria-label="Search interview kits" value="${escape(state.query)}"></label><label class="sort-box"><span>Sort:</span><select id="kit-sort" aria-label="Sort kits"><option value="recommended" ${state.sort === "recommended" ? "selected" : ""}>Recommended</option><option value="price-low" ${state.sort === "price-low" ? "selected" : ""}>Price: low to high</option><option value="price-high" ${state.sort === "price-high" ? "selected" : ""}>Price: high to low</option></select></label></div><div class="results-heading"><h2>Your next step starts here</h2><span id="results-count" aria-live="polite"></span></div>${state.apiError ? '<div class="inline-notice">The store is temporarily offline. You can still explore the catalog. <button data-action="reload">Retry</button></div>' : ""}<div class="kit-grid" id="kit-grid"></div><div class="catalog-footnote">${icon("circle-help")}Original practice material. No company affiliation or interview guarantees.</div></div>
   </section>
-  <section class="fundamental-band"><div class="wrap"><div><p class="eyebrow">A GOOD PLACE TO BEGIN</p><h2>Strong answers start<br>with the fundamentals.</h2><a href="#fundamentals" class="button light-button">Practice free questions ${icon("arrow-up-right")}</a></div><div class="sample-question"><span>QUESTION 01 / 12</span><h3>What does Big O tell you,<br>and what does it leave out?</h3><p>Go beyond the definition. Learn the reasoning, then try a follow-up.</p><a href="#fundamentals" aria-label="Read the Big O answer">${icon("arrow-right")}</a></div></div></section>
+  <section class="fundamental-band"><div class="wrap"><div><p class="eyebrow">A GOOD PLACE TO BEGIN</p><h2>Strong answers start<br>with the fundamentals.</h2><a href="#fundamentals" class="button light-button">Practice free questions ${icon("arrow-up-right")}</a></div><div class="sample-question"><span>QUESTION 01 / 50</span><h3>What does Big O tell you,<br>and what does it leave out?</h3><p>Go beyond the definition. Learn the reasoning, then try a follow-up.</p><a href="#fundamentals" aria-label="Read the Big O answer">${icon("arrow-right")}</a></div></div></section>
   <section class="faq-section wrap"><div><p class="eyebrow">BEFORE YOU BEGIN</p><h2>A few good questions.</h2><p>The practical details, answered.</p></div><div>${[
     [
       "What is included in a kit?",
@@ -238,7 +238,7 @@ function catalogPage() {
       "Are paid kits available now?",
       state.checkoutEnabled
         ? "Checkout is available through Razorpay. The final amount is shown before payment, and your download unlocks after payment is confirmed."
-        : "Paid checkout is being prepared. All prices and previews are available now, and the free fundamentals PDF is ready to download. You can register interest on a kit page.",
+        : "Paid checkout is being prepared. All prices and previews are available now, and the free fundamentals PDF is ready to download.",
     ],
   ]
     .map(
@@ -255,7 +255,7 @@ function kitPage(id) {
     main.innerHTML = `<section class="wrap page-heading"><h1>Kit not found.</h1><a class="button" href="#kits">Browse all kits</a></section>`;
     return;
   }
-  main.innerHTML = `<section class="wrap detail-page"><a class="back-link" href="#kits">${icon("arrow-left")}All interview kits</a><div class="detail-grid"><div class="detail-cover ${kit.color}"><img src="/covers/${kit.id}.png" alt="${kit.title} PDF cover" width="420" height="594"><span>${icon("file-text")}${kit.questions} questions & answers</span></div><div class="detail-copy"><p class="eyebrow">${escape(kit.category)} / KIT ${kit.number}</p><h1>${escape(kit.title)}</h1><p class="detail-subtitle">${escape(kit.subtitle)}</p><p>${escape(kit.description)}</p><div class="detail-tags"><span>${escape(kit.experience)}</span><span>PDF download</span><span>English</span></div><h2>Inside this kit</h2><ul class="included-list">${kit.topics.map((t) => `<li>${icon("check")}${escape(t)}</li>`).join("")}<li>${icon("check")}Follow-up prompts & practice worksheet</li></ul><div class="purchase-row"><div class="price">${money(kit.price)}<span>one-time purchase</span></div><button class="button" data-action="checkout" data-id="${id}">${state.checkoutEnabled ? "Get this kit" : "Notify me at launch"}${icon("arrow-up-right")}</button></div><p class="purchase-note">${icon(state.checkoutEnabled ? "shield-check" : "circle-help")}${state.checkoutEnabled ? "Secure payment via Razorpay. No subscription." : "Paid checkout opens soon. Preview the content below."}</p></div></div><section class="preview-section"><div><p class="eyebrow">A LOOK INSIDE</p><h2>Try a few questions.</h2><p>A sample from this kit, with the full answers.</p><a href="/samples/fundamentals.pdf" class="text-button" download>Download free fundamentals ${icon("download")}</a></div><div>${kit.samples ? kit.samples.map((q, i) => questionRow(q, i, false)).join("") : `<p>${state.apiError ? "Samples could not load. Please retry." : "Loading sample answers..."}</p><button class="small-button" data-action="reload">Refresh ${icon("refresh-cw")}</button>`}</div></section></section>`;
+  main.innerHTML = `<section class="wrap detail-page"><a class="back-link" href="#kits">${icon("arrow-left")}All interview kits</a><div class="detail-grid"><div class="detail-cover ${kit.color}"><img src="/covers/${kit.id}.png" alt="${kit.title} PDF cover" width="420" height="594"><span>${icon("file-text")}${kit.questions} questions & answers</span></div><div class="detail-copy"><p class="eyebrow">${escape(kit.category)} / KIT ${kit.number}</p><h1>${escape(kit.title)}</h1><p class="detail-subtitle">${escape(kit.subtitle)}</p><p>${escape(kit.description)}</p><div class="detail-tags"><span>${escape(kit.experience)}</span><span>PDF download</span><span>English</span></div><h2>Inside this kit</h2><ul class="included-list">${kit.topics.map((t) => `<li>${icon("check")}${escape(t)}</li>`).join("")}<li>${icon("check")}Follow-up prompts & practice worksheet</li></ul><div class="purchase-row"><div class="price">${money(kit.price)}<span>one-time purchase</span></div>${state.checkoutEnabled ? `<button class="button" data-action="checkout" data-id="${id}">Get this kit${icon("arrow-up-right")}</button>` : `<a class="button" href="/samples/fundamentals.pdf" download>Download free sample${icon("download")}</a>`}</div><p class="purchase-note">${icon(state.checkoutEnabled ? "shield-check" : "circle-help")}${state.checkoutEnabled ? "Secure payment via Razorpay. No subscription." : "Paid checkout opens soon. Preview the content below."}</p></div></div><section class="preview-section"><div><p class="eyebrow">A LOOK INSIDE</p><h2>Try a few questions.</h2><p>A sample from this kit, with the full answers.</p><a href="/samples/fundamentals.pdf" class="text-button" download>Download free fundamentals ${icon("download")}</a></div><div>${kit.samples ? kit.samples.map((q, i) => questionRow(q, i, false)).join("") : `<p>${state.apiError ? "Samples could not load. Please retry." : "Loading sample answers..."}</p><button class="small-button" data-action="reload">Refresh ${icon("refresh-cw")}</button>`}</div></section></section>`;
   icons();
 }
 function questionRow(question, index, practice = true) {
@@ -264,7 +264,7 @@ function questionRow(question, index, practice = true) {
   return `<details class="question-row"><summary><span class="question-index">${String(index + 1).padStart(2, "0")}</span><span><small>${escape(topic)}</small>${escape(title)}</span>${icon("plus")}</summary><div class="question-answer"><p>${escape(answer)}</p><div class="follow-up"><strong>Take it one step further</strong><p>${escape(followUp)}</p></div>${practice ? `<label class="practice-check"><input type="checkbox" data-practice="${index}" ${Array.isArray(completed) && completed.includes(index) ? "checked" : ""}>I've practiced this answer</label>` : ""}</div></details>`;
 }
 async function fundamentalsPage() {
-  main.innerHTML = `<section class="wrap free-page"><a class="back-link" href="#kits">${icon("arrow-left")}Back to kits</a><div class="free-heading"><div><p class="eyebrow">THE FREE STARTER COLLECTION</p><h1>Get the basics right<span>.</span></h1><p>12 questions worth understanding, wherever you are in your career.</p></div><a class="button" href="/samples/fundamentals.pdf" download>Download PDF ${icon("download")}</a></div><div class="practice-toolbar"><label class="search-box">${icon("search")}<input id="question-search" type="search" placeholder="Find a question" aria-label="Search free questions" value="${escape(state.questionQuery)}"></label><label class="sort-box"><select id="question-topic" aria-label="Filter by topic"><option>All topics</option>${["Foundations", "Object-oriented design", "Databases", "Web essentials"].map((t) => `<option ${state.questionTopic === t ? "selected" : ""}>${t}</option>`).join("")}</select></label><span class="practice-progress" id="practice-progress"></span></div><div id="question-list"><div class="loading-state">${icon("loader-circle", "spin")}Loading questions...</div></div><div class="free-bottom"><p>Ready to focus on a specific role?</p><a href="#kits" class="text-button">Explore the full kits ${icon("arrow-up-right")}</a></div></section>`;
+  main.innerHTML = `<section class="wrap free-page"><a class="back-link" href="#kits">${icon("arrow-left")}Back to kits</a><div class="free-heading"><div><p class="eyebrow">THE FREE STARTER COLLECTION</p><h1>Get the basics right<span>.</span></h1><p>50 questions worth understanding, wherever you are in your career.</p></div><a class="button" href="/samples/fundamentals.pdf" download>Download PDF ${icon("download")}</a></div><div class="practice-toolbar"><label class="search-box">${icon("search")}<input id="question-search" type="search" placeholder="Find a question" aria-label="Search free questions" value="${escape(state.questionQuery)}"></label><label class="sort-box"><select id="question-topic" aria-label="Filter by topic"><option>All topics</option>${["Foundations", "Object-oriented design", "Databases", "Web essentials"].map((t) => `<option ${state.questionTopic === t ? "selected" : ""}>${t}</option>`).join("")}</select></label><span class="practice-progress" id="practice-progress"></span></div><div id="question-list"><div class="loading-state">${icon("loader-circle", "spin")}Loading questions...</div></div><div class="free-bottom"><p>Ready to focus on a specific role?</p><a href="#kits" class="text-button">Explore the full kits ${icon("arrow-up-right")}</a></div></section>`;
   icons();
   try {
     if (!state.questions.length)
@@ -294,10 +294,13 @@ function questionList() {
 function progress() {
   const value = readStorage("preptrick-practice", []);
   const completed = Array.isArray(value)
-    ? value.filter((x) => Number.isInteger(x) && x >= 0 && x < 12)
+    ? value.filter(
+        (x) => Number.isInteger(x) && x >= 0 && x < state.questions.length,
+      )
     : [];
   const element = document.querySelector("#practice-progress");
-  if (element) element.textContent = `${completed.length} / 12 practiced`;
+  if (element)
+    element.textContent = `${completed.length} / ${state.questions.length} practiced`;
 }
 
 async function libraryPage() {
@@ -336,9 +339,14 @@ function checkout(id) {
     return;
   }
   if (!kit) return;
-  const enabled = state.checkoutEnabled;
+  if (!state.checkoutEnabled) {
+    toast(
+      "Paid checkout is not available yet. The free sample is ready to download.",
+    );
+    return;
+  }
   openModal(
-    `${closeButton()}<p class="eyebrow">${enabled ? "ONE STEP CLOSER" : "COMING TO PREPTRICK"}</p><h2 id="modal-title">${enabled ? "Make it yours." : "Be first in line."}</h2><div class="checkout-product"><img src="/covers/${id}.png" alt="" width="60" height="85"><div><h3>${kit.title}</h3><p>${kit.questions} Q&As · PDF download</p></div><strong>${money(kit.price)}</strong></div><p class="modal-description">${enabled ? "After payment, download your kit from My library. Save your recovery code for access on another device." : "Paid checkout is opening soon. Register your interest in this kit, or get started with our free fundamentals PDF."}</p><form id="checkout-form" data-id="${id}" data-enabled="${enabled}"><label class="field-label" for="checkout-email">Email address</label><input id="checkout-email" name="email" type="email" maxlength="254" autocomplete="email" required placeholder="you@example.com"><label class="consent"><input type="checkbox" name="consent" required><span>${enabled ? "I agree to the Terms and Refunds & delivery policy linked in the footer." : "Save my email to contact me about this kit’s launch. I can request removal through support."}</span></label><p class="form-error" role="alert"></p><button class="button full" type="submit">${enabled ? `Continue to pay ${money(kit.price)}` : "Register interest"}${icon(enabled ? "lock-keyhole" : "arrow-right")}</button></form>${!enabled ? '<a class="text-button sample-modal-link" href="/samples/fundamentals.pdf" download>Download free starter PDF</a>' : '<p class="secure-note">Payments processed by Razorpay.</p>'}`,
+    `${closeButton()}<p class="eyebrow">ONE STEP CLOSER</p><h2 id="modal-title">Make it yours.</h2><div class="checkout-product"><img src="/covers/${id}.png" alt="" width="60" height="85"><div><h3>${kit.title}</h3><p>${kit.questions} Q&As · PDF download</p></div><strong>${money(kit.price)}</strong></div><p class="modal-description">After payment, download your kit from My library. Save your recovery code for access on another device.</p><form id="checkout-form" data-id="${id}"><label class="field-label" for="checkout-email">Email address</label><input id="checkout-email" name="email" type="email" maxlength="254" autocomplete="email" required placeholder="you@example.com"><label class="consent"><input type="checkbox" name="consent" required><span>I agree to the Terms and Refunds & delivery policy linked in the footer.</span></label><p class="form-error" role="alert"></p><button class="button full" type="submit">Continue to pay ${money(kit.price)}${icon("lock-keyhole")}</button></form><p class="secure-note">Payments processed by Razorpay.</p>`,
   );
 }
 let razorpayLoading;
@@ -362,20 +370,8 @@ async function performCheckout(form) {
   const data = new FormData(form);
   const email = data.get("email");
   const kitId = form.dataset.id;
-  if (form.dataset.enabled !== "true") {
-    await api("/api/subscribe", {
-      method: "POST",
-      body: JSON.stringify({
-        email,
-        kitId,
-        consent: data.get("consent") === "on",
-      }),
-    });
-    openModal(
-      `${closeButton()}<span class="success-icon">${icon("check-circle-2")}</span><h2 id="modal-title">You're on the list.</h2><p>Your interest has been saved for the ${escape(state.kits.find((k) => k.id === kitId).title)} kit.</p><a class="button full" href="/samples/fundamentals.pdf" download>Get the free starter PDF ${icon("download")}</a>`,
-    );
-    return;
-  }
+  if (!state.checkoutEnabled)
+    throw Error("Paid checkout is not available yet.");
   await loadRazorpay();
   // A durable local recovery code is required before opening the payment provider.
   try {
@@ -444,7 +440,7 @@ const policies = {
   refunds: {
     title: "Refunds & delivery",
     content:
-      "<h3>Digital delivery</h3><p>This is a digital PDF product. No physical item is shipped. After payment is captured and verified, download the kit from My library. If confirmation is delayed, refresh your library; avoid paying again until the original payment status is resolved.</p><h3>Getting help</h3><p>For duplicate charges, an unavailable download, or a materially incorrect product, contact support promptly with the purchase reference and a description. Please submit requests within 7 days where possible; this does not limit mandatory consumer rights. Do not send card numbers, passwords, or API secrets.</p><h3>Review and refunds</h3><p>Requests are reviewed individually. Approved refunds are processed through the original payment provider, and the bank or provider controls processing time. A refunded purchase loses future download access. A change of mind after downloading is assessed case by case rather than automatically approved.</p><h3>Before checkout opens</h3><p>Launch-interest registration is free and does not place an order or reserve a price. The free fundamentals PDF can be downloaded immediately.</p>",
+      "<h3>Digital delivery</h3><p>This is a digital PDF product. No physical item is shipped. After payment is captured and verified, download the kit from My library. If confirmation is delayed, refresh your library; avoid paying again until the original payment status is resolved.</p><h3>Getting help</h3><p>For duplicate charges, an unavailable download, or a materially incorrect product, contact support promptly with the purchase reference and a description. Please submit requests within 7 days where possible; this does not limit mandatory consumer rights. Do not send card numbers, passwords, or API secrets.</p><h3>Review and refunds</h3><p>Requests are reviewed individually. Approved refunds are processed through the original payment provider, and the bank or provider controls processing time. A refunded purchase loses future download access. A change of mind after downloading is assessed case by case rather than automatically approved.</p><h3>Before checkout opens</h3><p>Paid checkout is not yet available. The free fundamentals PDF can be downloaded immediately.</p>",
   },
 };
 function policy(name) {

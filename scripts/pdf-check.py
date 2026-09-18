@@ -17,4 +17,7 @@ for path in (root / 'output/pdf').glob('*.pdf'):
         sheet.paste(image, (x, y))
         draw.text((x, y + cell_h - 23), f'{path.stem} / {i + 1}', fill='#324328')
     sheet.save(out / f'{path.stem}-pages.png')
+    # Check representative long answers and code examples at reading resolution.
+    detail_pages = {'software-engineer': 17, 'senior-software-engineer': 19, 'ai-engineer': 20, 'system-design': 17, 'frontend-engineer': 14, 'backend-engineer': 14, 'fundamentals': 24}
+    pdf[detail_pages[path.stem]].render(scale=1.4).to_pil().save(out / f'{path.stem}-detail.png')
 print('Rendered every page of all seven PDFs into review contact sheets.')

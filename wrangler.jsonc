@@ -18,8 +18,15 @@
       "migrations_dir": "migrations",
     },
   ],
+  "r2_buckets": [
+    {
+      "binding": "PDFS",
+      "bucket_name": "preptrick-kits",
+    },
+  ],
   "vars": {
     "BUSINESS_NAME": "PrepTrick",
+    "RAZORPAY_KEY_ID": "rzp_live_SbfPAbtHNgFB2D",
     "SUPPORT_EMAIL": "",
     "CHECKOUT_ENABLED": "false",
   },
