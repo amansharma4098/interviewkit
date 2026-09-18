@@ -12,6 +12,7 @@ import {
   Check,
   CheckCheck,
   Download,
+  ShoppingCart,
   FileText,
   BookOpen,
   LibraryBig,
@@ -49,6 +50,7 @@ const iconSet = {
   Check,
   CheckCheck,
   Download,
+  ShoppingCart,
   FileText,
   BookOpen,
   LibraryBig,
@@ -178,7 +180,7 @@ const closeButton = () =>
 function card(kit) {
   return `<article class="kit-card">
     <a class="kit-visual ${kit.color}" href="#kit/${kit.id}" aria-label="View ${kit.title} kit"><span class="visual-label">${escape(kit.label)}</span><img src="/covers/${kit.id}.png" width="420" height="594" alt="${kit.title} PDF cover" ${kit.number > "03" ? 'loading="lazy"' : 'fetchpriority="high"'} /><span class="format-tag">${icon("file-text")}PDF KIT</span><span class="visual-arrow">${icon("arrow-up-right")}</span></a>
-    <div class="kit-body"><div class="kit-meta"><span>${escape(kit.experience)}${kit.experience.includes("years") ? " experience" : ""}</span><span>${kit.questions} Q&As</span></div><h2><a href="#kit/${kit.id}">${escape(kit.title)}</a></h2><p>${escape(kit.description)}</p><div class="kit-bottom"><div class="price">${money(kit.price)}<span>one-time</span></div><a class="small-button" href="#kit/${kit.id}">View kit ${icon("arrow-up-right")}</a></div></div>
+    <div class="kit-body"><div class="kit-meta"><span>${escape(kit.experience)}${kit.experience.includes("years") ? " experience" : ""}</span><span>${kit.questions} Q&As</span></div><h2><a href="#kit/${kit.id}">${escape(kit.title)}</a></h2><p>${escape(kit.description)}</p><div class="kit-bottom"><div class="price">${money(kit.price)}<span>one-time</span></div><div class="kit-actions"><button class="small-button buy-button" data-action="checkout" data-id="${kit.id}">Buy now ${icon("shopping-cart")}</button><a class="text-button" href="#kit/${kit.id}">View kit ${icon("arrow-up-right")}</a></div></div></div>
   </article>`;
 }
 function filteredKits() {
@@ -255,7 +257,7 @@ function kitPage(id) {
     main.innerHTML = `<section class="wrap page-heading"><h1>Kit not found.</h1><a class="button" href="#kits">Browse all kits</a></section>`;
     return;
   }
-  main.innerHTML = `<section class="wrap detail-page"><a class="back-link" href="#kits">${icon("arrow-left")}All interview kits</a><div class="detail-grid"><div class="detail-cover ${kit.color}"><img src="/covers/${kit.id}.png" alt="${kit.title} PDF cover" width="420" height="594"><span>${icon("file-text")}${kit.questions} questions & answers</span></div><div class="detail-copy"><p class="eyebrow">${escape(kit.category)} / KIT ${kit.number}</p><h1>${escape(kit.title)}</h1><p class="detail-subtitle">${escape(kit.subtitle)}</p><p>${escape(kit.description)}</p><div class="detail-tags"><span>${escape(kit.experience)}</span><span>PDF download</span><span>English</span></div><h2>Inside this kit</h2><ul class="included-list">${kit.topics.map((t) => `<li>${icon("check")}${escape(t)}</li>`).join("")}<li>${icon("check")}Follow-up prompts & practice worksheet</li></ul><div class="purchase-row"><div class="price">${money(kit.price)}<span>one-time purchase</span></div>${state.checkoutEnabled ? `<button class="button" data-action="checkout" data-id="${id}">Get this kit${icon("arrow-up-right")}</button>` : ""}</div><p class="purchase-note">${icon(state.checkoutEnabled ? "shield-check" : "circle-help")}${state.checkoutEnabled ? "Secure payment via Razorpay. No subscription." : "Paid checkout opens soon. Preview the content below."}</p></div></div><section class="preview-section"><div><p class="eyebrow">A LOOK INSIDE</p><h2>Try a few questions.</h2><p>A sample from this kit, with the full answers.</p></div><div>${kit.samples ? kit.samples.map((q, i) => questionRow(q, i, false)).join("") : `<p>${state.apiError ? "Samples could not load. Please retry." : "Loading sample answers..."}</p><button class="small-button" data-action="reload">Refresh ${icon("refresh-cw")}</button>`}</div></section></section>`;
+  main.innerHTML = `<section class="wrap detail-page"><a class="back-link" href="#kits">${icon("arrow-left")}All interview kits</a><div class="detail-grid"><div class="detail-cover ${kit.color}"><img src="/covers/${kit.id}.png" alt="${kit.title} PDF cover" width="420" height="594"><span>${icon("file-text")}${kit.questions} questions & answers</span></div><div class="detail-copy"><p class="eyebrow">${escape(kit.category)} / KIT ${kit.number}</p><h1>${escape(kit.title)}</h1><p class="detail-subtitle">${escape(kit.subtitle)}</p><p>${escape(kit.description)}</p><div class="detail-tags"><span>${escape(kit.experience)}</span><span>PDF download</span><span>English</span></div><h2>Inside this kit</h2><ul class="included-list">${kit.topics.map((t) => `<li>${icon("check")}${escape(t)}</li>`).join("")}<li>${icon("check")}Follow-up prompts & practice worksheet</li></ul><div class="purchase-row"><div class="price">${money(kit.price)}<span>one-time purchase</span></div><button class="button" data-action="checkout" data-id="${id}" aria-describedby="purchase-availability">Buy now ${icon("shopping-cart")}</button></div><p class="purchase-note" id="purchase-availability">${icon(state.checkoutEnabled ? "shield-check" : "circle-help")}${state.checkoutEnabled ? "Secure payment via Razorpay. No subscription." : "Paid checkout opens soon. Preview the content below."}</p></div></div><section class="preview-section"><div><p class="eyebrow">A LOOK INSIDE</p><h2>Try a few questions.</h2><p>A sample from this kit, with the full answers.</p></div><div>${kit.samples ? kit.samples.map((q, i) => questionRow(q, i, false)).join("") : `<p>${state.apiError ? "Samples could not load. Please retry." : "Loading sample answers..."}</p><button class="small-button" data-action="reload">Refresh ${icon("refresh-cw")}</button>`}</div></section></section>`;
   icons();
 }
 function questionRow(question, index, practice = true) {
@@ -340,7 +342,9 @@ function checkout(id) {
   }
   if (!kit) return;
   if (!state.checkoutEnabled) {
-    toast("Paid checkout is not available yet. Please check back later.");
+    openModal(
+      `${closeButton()}<p class="eyebrow">PREPTRICK / CHECKOUT</p><h2 id="modal-title">Checkout opens soon.</h2><div class="checkout-product"><img src="/covers/${kit.id}.png" alt="" width="60" height="85"><div><h3>${escape(kit.title)}</h3><p>${kit.questions} Q&As · PDF download</p></div><strong>${money(kit.price)}</strong></div><p class="modal-description">Online payments are not available yet. This kit cannot be purchased until checkout is enabled. No payment has been taken.</p><button class="button full" data-action="close">Continue browsing ${icon("arrow-right")}</button>`,
+    );
     return;
   }
   openModal(

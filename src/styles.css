@@ -694,6 +694,25 @@ legend {
   background: #f0f4e9;
   border-color: #b9cbaa;
 }
+.kit-actions {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+  min-width: 112px;
+}
+.kit-actions .text-button {
+  padding: 2px 0;
+}
+.small-button.buy-button {
+  background: var(--green);
+  border-color: var(--green);
+  color: white;
+  min-height: 38px;
+}
+.small-button.buy-button:hover {
+  background: #245342;
+  border-color: #245342;
+}
 .catalog-footnote {
   display: flex;
   align-items: center;
