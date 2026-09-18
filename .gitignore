@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.wrangler/
+.dev.vars
+.env
+.env.*
+!.env.example
+tmp/
+test-results/
+.DS_Store
+# Paid study material is deployed privately, never published to the public source repo.
+content/questions.json
+output/pdf/*.pdf
+!output/pdf/fundamentals.pdf

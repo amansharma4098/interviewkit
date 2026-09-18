@@ -1,0 +1,196 @@
+{
+  "software-engineer": [
+    [
+      "Foundations",
+      "What does Big O tell you, and what does it leave out?",
+      "Big O describes an upper bound on how resource use grows with input size. A linear scan is O(n); binary search over sorted random-access data is O(log n). It hides constants and does not by itself predict wall-clock time. State whether you mean worst-case, average-case, or amortized cost, and include auxiliary space.",
+      "Compare scanning ten items with building a hash table for one lookup."
+    ],
+    [
+      "Foundations",
+      "When would you choose an array over a linked list?",
+      "An array provides constant-time indexed access and usually good cache locality. A linked list supports constant-time insertion after an already-known node, but finding that node is linear and nodes add allocation overhead. Dynamic arrays occasionally resize; append is typically amortized O(1). Choose based on the dominant operations, not the claim that linked-list insertion is always faster.",
+      "Explain the cost of inserting at index 500 when you do not already have a node reference."
+    ],
+    [
+      "Foundations",
+      "How does a hash table handle collisions?",
+      "Different keys may map to the same bucket. Separate chaining stores multiple entries per bucket; open addressing searches another slot. Lookup is expected O(1) with a suitable hash function and controlled load factor, but can degrade. Keys still require equality checks after hashing. Resizing rehashes entries into a larger table.",
+      "What breaks if a mutable object changes its hash while used as a key?"
+    ]
+  ],
+  "senior-software-engineer": [
+    [
+      "API architecture",
+      "How do you make a create endpoint safe to retry?",
+      "Accept an idempotency key scoped to the caller and operation. Store a request fingerprint and the result under a unique constraint so concurrent retries cannot both create work. Reusing a key with a different payload should fail. Define retention and handling of in-progress operations; a cache-only check before a write leaves a race.",
+      "How would you recover if the database committed but the response was lost?"
+    ],
+    [
+      "API architecture",
+      "How do you evolve an API without breaking clients?",
+      "Prefer additive fields with documented defaults, and make consumers tolerant of unknown response fields. Renaming fields, changing enum meanings, or tightening validation can break clients even when paths are unchanged. Measure actual usage, support a migration window, and version truly incompatible contracts. Test compatibility using representative client requests and schemas.",
+      "Why can adding an enum value break an older exhaustive client switch?"
+    ],
+    [
+      "API architecture",
+      "When would you choose a modular monolith over microservices?",
+      "A modular monolith keeps deployment and transactions simple while enforcing internal ownership boundaries. Microservices can provide independent scaling and releases, but add network failures, distributed tracing, and data consistency work. Split where independent ownership or scaling produces measurable value. Team size and operational maturity matter as much as traffic.",
+      "Which boundary would you extract first, and what evidence supports it?"
+    ]
+  ],
+  "ai-engineer": [
+    [
+      "ML foundations",
+      "How do you diagnose overfitting?",
+      "Compare training and validation performance using a split that reflects deployment. Very strong training performance with weaker held-out performance can indicate overfitting, but distribution shift or leakage can complicate the picture. Consider simpler models, regularization, more representative data, or early stopping. Keep the final test set separate from iterative tuning.",
+      "Why can repeatedly choosing models using a test set invalidate its estimate?"
+    ],
+    [
+      "ML foundations",
+      "What is data leakage?",
+      "Leakage occurs when training or evaluation uses information unavailable at prediction time or allows held-out examples to influence fitting. Examples include fitting normalization on all data, future events in features, or near-duplicates across splits. Split by time, entity, or group as the task requires, and fit preprocessing only on the training partition.",
+      "How would you split multiple medical visits from the same patient?"
+    ],
+    [
+      "ML foundations",
+      "How should imbalanced classification be evaluated?",
+      "Choose metrics based on error costs and deployment prevalence. Precision, recall, precision-recall curves, and confusion matrices at a selected threshold are often more informative than accuracy. Class weighting or resampling may help training but changes how probabilities should be interpreted. Evaluate calibration and subgroup performance where relevant.",
+      "For fraud detection, what business cost changes the decision threshold?"
+    ]
+  ],
+  "system-design": [
+    [
+      "Approach",
+      "How do you begin a system design interview?",
+      "Clarify the primary users, core operations, scale, and non-functional requirements. Separate must-have behavior from optional features. State assumptions and agree on consistency, latency, availability, and retention targets before drawing components. Start with a working end-to-end path, then identify the bottleneck or failure mode that justifies additional complexity.",
+      "What changes if the interviewer values correctness more than low latency?"
+    ],
+    [
+      "Approach",
+      "How do you estimate capacity?",
+      "Estimate average and peak request rates from active users and actions per user, then calculate storage growth, bandwidth, and concurrency. Keep units visible and distinguish reads from writes. Use rough numbers to compare architectures, not to imply false precision. Revisit assumptions when payload sizes or retention dominate the design.",
+      "At 1 million writes/day and 1 KB/write, estimate raw annual storage before replicas and indexes."
+    ],
+    [
+      "Approach",
+      "How do functional and non-functional requirements differ?",
+      "Functional requirements describe behavior, such as creating a post or buying a ticket. Non-functional requirements describe qualities and constraints, such as latency, durability, availability, privacy, and operating cost. Make them measurable when possible. A design that implements all endpoints but loses confirmed purchases does not meet the actual requirement.",
+      "Define an availability target from the user's perspective."
+    ]
+  ],
+  "frontend-engineer": [
+    [
+      "JavaScript",
+      "How do var, let, and const differ?",
+      "let and const are block-scoped and cannot be accessed before initialization. var is function-scoped and is initialized to undefined during its hoisting behavior. const prevents reassignment of the binding, not mutation of an object it references. Prefer the narrowest scope and use const when reassignment is unnecessary.",
+      "Can you push to an array declared with const?"
+    ],
+    [
+      "JavaScript",
+      "What is a closure?",
+      "A closure is a function together with access to its lexical environment. It can retain values after the enclosing call returns, enabling factories and private state. It can also retain large objects longer than expected. In asynchronous code, understand whether the function sees a captured value or a binding whose value later changes.",
+      "Why do callbacks created with var inside a loop often share the final index?"
+    ],
+    [
+      "JavaScript",
+      "How does the event loop relate to promises?",
+      "JavaScript runs a task to completion, then the browser processes microtasks such as promise reactions before taking the next task and reaching rendering opportunities. Exact scheduling includes more browser detail, but the key is that asynchronous does not mean CPU work runs in parallel. Long tasks or endless microtasks can delay input and rendering.",
+      "Why does wrapping expensive work in Promise.resolve().then() not remove UI blocking?"
+    ]
+  ],
+  "backend-engineer": [
+    [
+      "API design",
+      "What makes an API contract useful?",
+      "Document resource shapes, validation, authentication, errors, pagination, and compatibility behavior. Use consistent status codes and machine-readable error identifiers while keeping messages safe. Specify idempotency and asynchronous states for operations that can outlive a request. A schema describes structure, but examples and semantic invariants explain how clients should behave.",
+      "How would a client distinguish a retryable failure from invalid input?"
+    ],
+    [
+      "API design",
+      "Where should input validation happen?",
+      "Validate at trust boundaries and enforce critical invariants in the storage layer too. Parse types explicitly, bound lengths and sizes, allowlist supported fields, and reject impossible combinations. Client validation improves usability but is bypassable. Avoid silently accepting a client-supplied price, role, or ownership field when the server is authoritative.",
+      "How would you prevent mass assignment from granting an administrator role?"
+    ],
+    [
+      "API design",
+      "How should REST errors be represented?",
+      "Use an appropriate HTTP status and a stable structured body with an error code, useful message, and optional field-level details or request ID. Do not expose stack traces, SQL, or secrets. Distinguish missing resources from authorization failures according to the information-disclosure policy. Document whether and when a client should retry.",
+      "When would 409 Conflict be more useful than a generic 500?"
+    ]
+  ],
+  "fundamentals": [
+    [
+      "Foundations",
+      "What does Big O tell you, and what does it leave out?",
+      "Big O describes an upper bound on how resource use grows with input size. A linear scan is O(n); binary search over sorted random-access data is O(log n). It hides constants and does not by itself predict wall-clock time. State whether you mean worst-case, average-case, or amortized cost, and include auxiliary space.",
+      "Compare scanning ten items with building a hash table for one lookup."
+    ],
+    [
+      "Foundations",
+      "When would you choose an array over a linked list?",
+      "An array provides constant-time indexed access and usually good cache locality. A linked list supports constant-time insertion after an already-known node, but finding that node is linear and nodes add allocation overhead. Dynamic arrays occasionally resize; append is typically amortized O(1). Choose based on the dominant operations, not the claim that linked-list insertion is always faster.",
+      "Explain the cost of inserting at index 500 when you do not already have a node reference."
+    ],
+    [
+      "Foundations",
+      "How does a hash table handle collisions?",
+      "Different keys may map to the same bucket. Separate chaining stores multiple entries per bucket; open addressing searches another slot. Lookup is expected O(1) with a suitable hash function and controlled load factor, but can degrade. Keys still require equality checks after hashing. Resizing rehashes entries into a larger table.",
+      "What breaks if a mutable object changes its hash while used as a key?"
+    ],
+    [
+      "Foundations",
+      "What is the difference between a process and a thread?",
+      "A process generally has an isolated virtual address space. Threads in one process share memory and resources but have separate stacks and execution state. Threads can communicate cheaply through shared memory, which introduces synchronization needs. A crash or race in one thread can affect the process. Actual scheduling and isolation depend on the operating system.",
+      "Why does a global variable need care when multiple threads write to it?"
+    ],
+    [
+      "Foundations",
+      "What is a race condition?",
+      "A race condition occurs when correctness depends on the timing of concurrent operations. Two workers can both read a counter as 10 and each write 11, losing an increment. Use an atomic operation, a lock, or a transactional database update. A lock must cover the complete read-modify-write sequence, not only the final write.",
+      "Design a concurrent stock decrement that cannot sell below zero."
+    ],
+    [
+      "Object-oriented design",
+      "What is encapsulation?",
+      "Encapsulation keeps an object's representation behind a controlled interface so callers cannot violate its invariants. A bank account could expose deposit and withdraw methods instead of a writable balance field. Access modifiers alone are not enough if methods return mutable internal objects. The goal is a stable contract and valid state, not getters for every field.",
+      "How would you return a collection without allowing callers to mutate internal state?"
+    ],
+    [
+      "Databases",
+      "How do primary and foreign keys differ?",
+      "A primary key uniquely identifies a row and is non-null. A foreign key constrains a reference to a candidate key in another or the same table. Together they help preserve relationships, but indexing of foreign-key columns depends on the database. Define deletion behavior deliberately, such as restricting deletes or cascading only when ownership is clear.",
+      "What should happen to order items when their parent order is deleted?"
+    ],
+    [
+      "Databases",
+      "What does a database index cost?",
+      "An index adds a searchable structure that can accelerate selected reads, joins, and ordering. It consumes storage and adds work to inserts, deletes, and updates of indexed values. A composite index's column order matters. Inspect a query plan and representative data before adding indexes; a low-selectivity predicate may still favor a table scan.",
+      "Would an index on a boolean column always make filtering faster?"
+    ],
+    [
+      "Databases",
+      "What are ACID transactions?",
+      "Atomicity groups changes into all-or-nothing work. Consistency means enforced invariants remain valid. Isolation controls interference between concurrent transactions, with guarantees depending on the isolation level. Durability means committed changes survive failures within the database's durability contract. ACID does not automatically make external email or payment calls part of a database transaction.",
+      "Why should transferring money update both account balances in one transaction?"
+    ],
+    [
+      "Web essentials",
+      "How do HTTP methods express intent?",
+      "GET retrieves a representation and should be safe. POST commonly creates or triggers work. PUT replaces a resource at a known URI and is intended to be idempotent; PATCH applies a partial change whose idempotency depends on the operation. DELETE is intended to be idempotent in effect, although repeated responses may differ. Method names alone do not enforce application behavior.",
+      "Why is a payment retry with POST dangerous without an idempotency key?"
+    ],
+    [
+      "Web essentials",
+      "What is the difference between authentication and authorization?",
+      "Authentication establishes an identity; authorization decides whether that identity may perform an action on a particular resource. A logged-in user still must not read another user's invoice. Check authorization on the server for every protected operation and use resource ownership or roles as appropriate. Hiding a button is only a user-interface decision.",
+      "Where would you check ownership in GET /orders/:id?"
+    ],
+    [
+      "Web essentials",
+      "How do you prevent SQL injection?",
+      "Use parameterized queries so data is bound separately from SQL syntax. Validate input shapes as well, but escaping or validation alone is not a substitute. Parameters usually cannot stand in for table names or sort directions; select those from a fixed allowlist. Give the database account only the permissions the application needs.",
+      "How would you safely implement user-selectable sorting?"
+    ]
+  ]
+}
