@@ -42,7 +42,7 @@ npm run build
 
 Tests use Node's SQLite engine and mocked Razorpay responses. They cover server-owned prices, forged callbacks, capture state, amount/currency matching, direct-file bypasses, recovery, duplicate webhooks, refund ordering, origin checks, persistence, and abuse limits. They do not replace a real Razorpay sandbox acceptance test.
 
-Run `npx playwright install chromium --only-shell` once, then `npm run test:browser` with the local Worker running. The browser suite exercises catalog filtering, previews, the free-sample action (with no notification signup), support submissions, 50-question practice progress, the purchase library, the free PDF, and desktop/tablet/mobile layouts. Set `SITE_URL` to a deployed origin for a read-only smoke run. Browser screenshots are kept in the ignored `test-results` folder.
+Run `npx playwright install chromium --only-shell` once, then `npm run test:browser` with the local Worker running. The browser suite exercises catalog filtering, previews, absence of starter-PDF promotions and notification signup, support submissions, 50-question practice progress, the purchase library, the PDF endpoint, and desktop/tablet/mobile layouts. Set `SITE_URL` to a deployed origin for a read-only smoke run. Browser screenshots are kept in the ignored `test-results` folder. Starter-PDF download links are intentionally hidden from the UI; the stored PDF and its existing endpoint are retained.
 
 ## Cloudflare deployment
 

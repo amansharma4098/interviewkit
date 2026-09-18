@@ -14,9 +14,21 @@ try {
   page.on("console", (message) => {
     if (message.type() === "error") errors.push(message.text());
   });
+  const assertNoStarterPromotions = async () => {
+    assert.equal(
+      await page
+        .locator(
+          '.announcement, .sidebar-sample, a[href*="/samples/fundamentals.pdf"]',
+        )
+        .count(),
+      0,
+      `Starter-kit promotion remains on ${page.url()}`,
+    );
+  };
   await page.goto(base, { waitUntil: "networkidle" });
   await page.getByRole("heading", { name: "Interview prep kits." }).waitFor();
   assert.equal(await page.locator(".kit-card").count(), 6);
+  await assertNoStarterPromotions();
   assert.equal(
     await page
       .locator(".kit-visual img")
@@ -45,18 +57,13 @@ try {
     await page.getByRole("button", { name: /Notify me/ }).count(),
     0,
   );
-  const downloadPromise = page.waitForEvent("download");
-  await page
-    .getByRole("link", { name: "Download free sample", exact: true })
-    .click();
-  const download = await downloadPromise;
-  assert.equal(await download.failure(), null);
-  assert.match(download.suggestedFilename(), /fundamentals.*\.pdf$/);
+  await assertNoStarterPromotions();
   assert.equal(await page.locator("dialog[open]").count(), 0);
   await page.getByRole("link", { name: /Free questions/ }).click();
   await page.getByRole("heading", { name: "Get the basics right." }).waitFor();
   await page.locator(".question-row").nth(49).waitFor();
   assert.equal(await page.locator(".question-row").count(), 50);
+  await assertNoStarterPromotions();
   await page.locator(".question-row summary").first().click();
   await page.getByLabel("I've practiced this answer").first().check();
   assert.equal(
@@ -70,6 +77,7 @@ try {
   await page
     .getByRole("heading", { name: "A little space for your next big step." })
     .waitFor();
+  await assertNoStarterPromotions();
   if (!process.env.SITE_URL) {
     await page.getByRole("button", { name: "Get in touch" }).click();
     await page
@@ -90,6 +98,7 @@ try {
     await page.goto(`${base}/#kits`, { waitUntil: "networkidle" });
     await page.getByRole("radio", { name: "All kits" }).check();
     assert.equal(await page.locator(".kit-card").count(), 6);
+    await assertNoStarterPromotions();
     assert.equal(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,
@@ -114,6 +123,7 @@ try {
   await page.goto(`${base}/#kit/senior-software-engineer`, {
     waitUntil: "networkidle",
   });
+  await assertNoStarterPromotions();
   await page.screenshot({
     path: "test-results/detail-mobile.png",
     fullPage: true,
@@ -141,6 +151,7 @@ try {
       await page
         .getByRole("heading", { level: 1, name: title, exact: true })
         .waitFor();
+      await assertNoStarterPromotions();
       assert.equal(
         await page.evaluate(
           () => document.documentElement.scrollWidth <= innerWidth,
@@ -180,7 +191,7 @@ try {
     .waitFor();
   assert.deepEqual(errors, []);
   console.log(
-    "Browser checks passed: catalog, filtering, previews, no notify button, free-sample action, 50-question practice progress, library, PDF download, direct business/policy pages, responsive layout, and console.",
+    "Browser checks passed: catalog, filtering, previews, no notify button or starter-PDF promotions, 50-question practice progress, library, PDF endpoint, direct business/policy pages, responsive layout, and console.",
   );
 } finally {
   await browser.close();
