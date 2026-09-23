@@ -4,6 +4,7 @@ import { DatabaseSync } from "node:sqlite";
 import { readFileSync } from "node:fs";
 import { createHmac } from "node:crypto";
 import worker, { digest, verifyHmac } from "../worker/index.js";
+import { kits } from "../src/catalog.js";
 
 function database() {
   const db = new DatabaseSync(":memory:");
@@ -121,17 +122,26 @@ async function withProvider(fn, callback) {
     globalThis.fetch = original;
   }
 }
+async function withKitPrice(id, price, callback) {
+  const kit = kits.find((item) => item.id === id);
+  const original = kit.price;
+  kit.price = price;
+  try {
+    await callback();
+  } finally {
+    kit.price = original;
+  }
+}
 
-test("catalog has required prices and only three sample answers per kit", async () => {
+test("catalog is free for now and exposes expanded previews", async () => {
   const result = await (
     await worker.fetch(request("/api/catalog"), environment())
   ).json();
-  assert.deepEqual(
-    result.kits.slice(0, 4).map((k) => k.price),
-    [200, 400, 500, 500],
-  );
-  assert.ok(result.kits.every((k) => k.samples.length === 3));
+  assert.ok(result.kits.length >= 10);
+  assert.ok(result.kits.every((k) => k.price === 0));
+  assert.ok(result.kits.every((k) => k.samples.length >= 6));
   assert.ok(result.kits.every((k) => k.questions >= 50));
+  assert.ok(result.kits.filter((k) => k.category === "AI & Data").length >= 5);
 });
 test("the free collection has at least 50 unique questions and answers", async () => {
   const { questions } = await (
@@ -191,7 +201,7 @@ test("business and policy URLs serve the app shell without widening the public a
   ]) {
     const response = await worker.fetch(request(path), env);
     assert.equal(response.status, 200);
-      assert.equal(await response.text(), "/");
+    assert.equal(await response.text(), "/");
   }
   for (const path of [
     "/unknown",
@@ -214,32 +224,34 @@ test("HMAC validation rejects forged or malformed signatures", async () => {
 });
 test("server pricing ignores browser price and preserves the secret recovery capability", async () => {
   const env = environment();
-  await withProvider(
-    async (_url, init) => {
-      assert.equal(JSON.parse(init.body).amount, 20000);
-      return Response.json({ id: "order_new" });
-    },
-    async () => {
-      const response = await worker.fetch(
-        post("/api/orders", {
-          kitId: "software-engineer",
-          email: "buyer@example.test",
-          amount: 1,
-          acceptTerms: true,
-        }),
-        env,
-      );
-      assert.equal(response.status, 201);
-      const result = await response.json();
-      assert.equal(result.amount, 20000);
-      assert.match(result.token, /^[a-f0-9]{64}$/);
-      const saved = await env.DB.prepare("SELECT * FROM orders WHERE id = ?")
-        .bind(result.id)
-        .first();
-      assert.equal(saved.token_hash, await digest(result.token));
-      assert.notEqual(saved.token_hash, result.token);
-    },
-  );
+  await withKitPrice("software-engineer", 200, async () => {
+    await withProvider(
+      async (_url, init) => {
+        assert.equal(JSON.parse(init.body).amount, 20000);
+        return Response.json({ id: "order_new" });
+      },
+      async () => {
+        const response = await worker.fetch(
+          post("/api/orders", {
+            kitId: "software-engineer",
+            email: "buyer@example.test",
+            amount: 1,
+            acceptTerms: true,
+          }),
+          env,
+        );
+        assert.equal(response.status, 201);
+        const result = await response.json();
+        assert.equal(result.amount, 20000);
+        assert.match(result.token, /^[a-f0-9]{64}$/);
+        const saved = await env.DB.prepare("SELECT * FROM orders WHERE id = ?")
+          .bind(result.id)
+          .first();
+        assert.equal(saved.token_hash, await digest(result.token));
+        assert.notEqual(saved.token_hash, result.token);
+      },
+    );
+  });
 });
 test("cross-origin mutations and malformed input are rejected", async () => {
   const env = environment();
@@ -297,55 +309,70 @@ test("private static assets cannot bypass purchase checks, including encoded pat
     "application/pdf",
   );
 });
-test("unpaid users and wrong kit requests cannot download", async () => {
+test("free kits download without a purchase", async () => {
+  const env = environment();
+  const response = await worker.fetch(
+    request("/downloads/software-engineer"),
+    env,
+  );
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("Content-Type"), "application/pdf");
+  assert.match(await response.text(), /^%PDF/);
+});
+test("paid-mode users and wrong kit requests cannot download", async () => {
   const env = environment();
   let storageReads = 0;
   env.PDFS.get = async () => {
     storageReads++;
     return { body: "%PDF-1.4 test\n", size: 13 };
   };
-  await seed(env);
-  assert.equal(
-    (await worker.fetch(request("/downloads/software-engineer"), env)).status,
-    401,
-  );
-  assert.equal(
-    (
-      await worker.fetch(
+  await withKitPrice("software-engineer", 200, async () => {
+    await withKitPrice("ai-engineer", 500, async () => {
+      await seed(env);
+      assert.equal(
+        (await worker.fetch(request("/downloads/software-engineer"), env))
+          .status,
+        401,
+      );
+      assert.equal(
+        (
+          await worker.fetch(
+            request("/downloads/software-engineer", {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            env,
+          )
+        ).status,
+        403,
+      );
+      await env.DB.prepare("UPDATE orders SET status = 'paid'").run();
+      assert.equal(
+        (
+          await worker.fetch(
+            request("/downloads/ai-engineer", {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            env,
+          )
+        ).status,
+        403,
+      );
+      const download = await worker.fetch(
         request("/downloads/software-engineer", {
           headers: { Authorization: `Bearer ${token}` },
         }),
         env,
-      )
-    ).status,
-    403,
-  );
-  await env.DB.prepare("UPDATE orders SET status = 'paid'").run();
-  assert.equal(
-    (
-      await worker.fetch(
-        request("/downloads/ai-engineer", {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        env,
-      )
-    ).status,
-    403,
-  );
-  const download = await worker.fetch(
-    request("/downloads/software-engineer", {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-    env,
-  );
+      );
+      assert.equal(download.status, 200);
+      assert.equal(download.headers.get("Cache-Control"), "private, no-store");
+      assert.match(await download.text(), /^%PDF/);
+    });
+  });
   assert.equal(
     storageReads,
     1,
     "Only the authorized request should read private storage",
   );
-  assert.equal(download.status, 200);
-  assert.equal(download.headers.get("Cache-Control"), "private, no-store");
-  assert.match(await download.text(), /^%PDF/);
 });
 test("forged browser payment callbacks do not unlock a kit", async () => {
   const env = environment();

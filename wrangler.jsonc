@@ -27,7 +27,7 @@
   "vars": {
     "BUSINESS_NAME": "PrepTrick",
     "SUPPORT_EMAIL": "preptrick@gmail.com",
-    "CHECKOUT_ENABLED": "true",
+    "CHECKOUT_ENABLED": "false",
   },
   "triggers": {
     "crons": ["0 3 * * *"],

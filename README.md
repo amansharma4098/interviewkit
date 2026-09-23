@@ -1,12 +1,12 @@
 # interviewkit
 
-PrepTrick is an interview-preparation PDF storefront built for Cloudflare Workers, D1, and private R2 storage. The frontend uses Vite, JavaScript, locally hosted fonts, and Lucide icons. Razorpay handles payments. The seller brand is PrepTrick; this repository is `interviewkit`.
+PrepTrick is an interview-preparation PDF storefront built for Cloudflare Workers, D1, and private R2 storage. The frontend uses Vite, JavaScript, locally hosted fonts, and Lucide icons. Razorpay payment support remains in the codebase but is disabled while the catalog is free. The seller brand is PrepTrick; this repository is `interviewkit`.
 
 Live site: https://preptrick.amansharma4098.workers.dev
 
-The catalog, samples, free PDF, and D1-backed forms are deployed. Paid checkout remains disabled pending the owner's Razorpay configuration, support address, and seller-policy review.
+The catalog, expanded samples, free downloads, and D1-backed forms are deployed. Paid checkout remains disabled while Razorpay's website review is resolved; every catalog kit is free for now.
 
-Every kit card and detail page displays a Buy now button. While checkout is disabled, clicking it shows the selected product and a clear availability message without creating an order, collecting payment details, or reintroducing launch-interest signup. When checkout is enabled, the same action opens the existing purchase form.
+Every zero-price kit card and detail page displays a Download free button. Paid checkout code remains available for later, but it is not offered while all catalog prices are zero.
 
 Public review links are `/about`, `/pricing`, `/contact`, `/terms`, `/privacy`, and `/refunds`. These routes open directly and are linked from the footer. The contact form saves requests in D1; it does not send email. No seller identity or support email is invented when those details have not been provided. Razorpay website review is separate from API credentials and does not generate a new secret for each website.
 
@@ -14,15 +14,19 @@ Public review links are `/about`, `/pricing`, `/contact`, `/terms`, `/privacy`, 
 
 | Kit | Experience | Price | Q&As | Pages |
 | --- | --- | ---: | ---: | ---: |
-| Software Engineer | 0-1 years | INR 200 | 50 | 28 |
-| Senior Software Engineer | 2-4 years | INR 400 | 50 | 28 |
-| AI Engineer | Experienced | INR 500 | 50 | 28 |
-| System Design Round | All levels | INR 500 | 50 | 28 |
-| Frontend Engineer | 0-3 years | INR 300 | 50 | 28 |
-| Backend Engineer | 1-4 years | INR 350 | 50 | 28 |
+| Software Engineer | 0-1 years | Free | 80 | 28 |
+| Senior Software Engineer | 2-4 years | Free | 80 | 28 |
+| AI Engineer | Experienced | Free | 90 | 28 |
+| System Design Round | All levels | Free | 80 | 28 |
+| Frontend Engineer | 0-3 years | Free | 80 | 28 |
+| Backend Engineer | 1-4 years | Free | 80 | 28 |
+| Prompt Engineering | All levels | Free | 70 | 28 |
+| LLM App Developer | 1-4 years | Free | 70 | 28 |
+| Machine Learning Engineer | Experienced | Free | 70 | 28 |
+| Data Scientist | 0-4 years | Free | 70 | 28 |
 | Fundamentals | All levels | Free | 50 | 28 |
 
-The first four prices were specified by the owner. The additional two are editable starting prices. Content is original practice material, not claimed to be collected from employers. Full PDFs live locally in `output/pdf` and remotely in the private `preptrick-kits` R2 bucket. D1's `kit_files` table stores each kit's object key, byte size, SHA-256 checksum, and update time. Cover previews are generated from the real PDFs. Catalog metadata is in `src/catalog.js`; both private answer banks, `content/questions.json` and `content/technical-questions.json`, are git-ignored. Only `content/samples.json`, cover previews, and the free fundamentals PDF are committed to this public repository.
+Content is original practice material, not claimed to be collected from employers. Full PDFs live locally in `output/pdf` and remotely in the private `preptrick-kits` R2 bucket. D1's `kit_files` table stores each kit's object key, byte size, SHA-256 checksum, and update time. Cover previews are generated from the real PDFs. Catalog metadata is in `src/catalog.js`; both private answer banks, `content/questions.json` and `content/technical-questions.json`, are git-ignored. Only `content/samples.json`, cover previews, and the free fundamentals PDF are committed to this public repository. Newly added AI tracks currently reuse the existing AI Engineer PDF object until dedicated PDFs are generated and uploaded.
 
 ## Local development
 

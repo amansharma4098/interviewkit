@@ -17,6 +17,24 @@
       "How does a hash table handle collisions?",
       "Different keys may map to the same bucket. Separate chaining stores multiple entries per bucket; open addressing searches another slot. Lookup is expected O(1) with a suitable hash function and controlled load factor, but can degrade. Keys still require equality checks after hashing. Resizing rehashes entries into a larger table.",
       "What breaks if a mutable object changes its hash while used as a key?"
+    ],
+    [
+      "Coding patterns",
+      "How would you explain two pointers?",
+      "Two pointers track positions in a sequence so each step moves one or both pointers toward a useful condition. It fits sorted arrays, windows, and pair searches when movement rules are clear. The important part is proving you do not skip a valid answer and that each pointer moves enough to terminate.",
+      "When does sorting first change the complexity or meaning of a two-pointer solution?"
+    ],
+    [
+      "Coding patterns",
+      "What does a queue model well?",
+      "A queue models first-in-first-out work such as breadth-first search, task scheduling, and buffered events. It helps when older items must be processed before newer ones. Describe enqueue and dequeue costs, capacity behavior, and what happens when producers are faster than consumers.",
+      "Why does BFS use a queue instead of a stack?"
+    ],
+    [
+      "Interview practice",
+      "How do you talk through a bug while solving?",
+      "State the failing expectation, inspect the smallest reproducible input, and compare actual state against the invariant you expected. Avoid random changes. In an interview, narrate the evidence you are using and why a fix follows from that evidence.",
+      "What would you log first if a binary search misses an existing value?"
     ]
   ],
   "senior-software-engineer": [
@@ -37,6 +55,24 @@
       "When would you choose a modular monolith over microservices?",
       "A modular monolith keeps deployment and transactions simple while enforcing internal ownership boundaries. Microservices can provide independent scaling and releases, but add network failures, distributed tracing, and data consistency work. Split where independent ownership or scaling produces measurable value. Team size and operational maturity matter as much as traffic.",
       "Which boundary would you extract first, and what evidence supports it?"
+    ],
+    [
+      "Reliability",
+      "How do you design graceful degradation?",
+      "Identify the core user action and the dependencies that can fail. Keep the core path working with cached data, simpler behavior, or queued work when nonessential services are down. Make degradation explicit through metrics and user messaging so reduced quality is visible and reversible.",
+      "What would you disable first if recommendations are slow but checkout is healthy?"
+    ],
+    [
+      "Technical ownership",
+      "How do you evaluate a risky migration?",
+      "Define the target state, rollback path, compatibility period, and observable checkpoints. Prefer reversible, incremental changes over one large cutover. Measure correctness and performance during the migration, and plan for old and new code to coexist while traffic drains.",
+      "What metric would tell you a data migration is silently losing rows?"
+    ],
+    [
+      "Concurrency",
+      "What is backpressure?",
+      "Backpressure is a way for a slower consumer to signal that producers must slow down, buffer less, or shed load. Without it, queues grow until memory, latency, or downstream limits fail. Good systems define limits and behavior when those limits are reached.",
+      "When would you reject requests instead of adding them to a queue?"
     ]
   ],
   "ai-engineer": [
@@ -57,6 +93,24 @@
       "How should imbalanced classification be evaluated?",
       "Choose metrics based on error costs and deployment prevalence. Precision, recall, precision-recall curves, and confusion matrices at a selected threshold are often more informative than accuracy. Class weighting or resampling may help training but changes how probabilities should be interpreted. Evaluate calibration and subgroup performance where relevant.",
       "For fraud detection, what business cost changes the decision threshold?"
+    ],
+    [
+      "LLMs & RAG",
+      "How do you decide whether to use RAG or fine-tuning?",
+      "Use retrieval when the model needs fresh, private, or citation-worthy knowledge that can remain outside the model weights. Fine-tuning is better for style, format, task behavior, or repeated domain patterns. Many systems combine both; evaluate against real prompts rather than choosing by trend.",
+      "What failure would point to retrieval quality rather than model capability?"
+    ],
+    [
+      "Evaluation",
+      "How do you evaluate an LLM feature?",
+      "Build a task-specific dataset with representative inputs, expected qualities, and unacceptable failures. Combine automated checks for format or facts with human review for nuance. Track regressions across model, prompt, retrieval, and tool changes. Measure latency and cost alongside quality.",
+      "Why is a single demo prompt a weak evaluation?"
+    ],
+    [
+      "MLOps",
+      "What should be monitored after an AI model ships?",
+      "Monitor input drift, output quality signals, latency, cost, error rates, safety events, and user correction patterns. For LLM systems, also watch retrieval hit rates, tool failures, refusal rates, and prompt/template versions. Monitoring should connect symptoms to rollback or mitigation actions.",
+      "What alert would tell you embeddings or retrieval broke after a deploy?"
     ]
   ],
   "system-design": [
@@ -77,6 +131,24 @@
       "How do functional and non-functional requirements differ?",
       "Functional requirements describe behavior, such as creating a post or buying a ticket. Non-functional requirements describe qualities and constraints, such as latency, durability, availability, privacy, and operating cost. Make them measurable when possible. A design that implements all endpoints but loses confirmed purchases does not meet the actual requirement.",
       "Define an availability target from the user's perspective."
+    ],
+    [
+      "Scaling patterns",
+      "When is caching the wrong answer?",
+      "Caching can hide slow dependencies, but it adds invalidation, staleness, memory pressure, and consistency decisions. It is the wrong first move when data must be strongly current, the hit rate is low, or the root query can be fixed cheaply. State what is cached, for whom, and for how long.",
+      "What could go wrong if account balances are cached at the edge?"
+    ],
+    [
+      "Distributed systems",
+      "What is eventual consistency?",
+      "Eventual consistency means replicas may temporarily disagree, but converge if updates stop and propagation succeeds. It can improve availability and latency, but users may observe stale reads or ordering surprises. The design must define acceptable staleness and conflict handling.",
+      "Where would eventual consistency be acceptable in a social app?"
+    ],
+    [
+      "Case studies",
+      "How would you design a notification system?",
+      "Clarify channels, priority, preferences, delivery guarantees, and volume. A common design uses an event source, template renderer, preference checks, channel-specific queues, and provider adapters. Include deduplication, retries, rate limits, and unsubscribe compliance.",
+      "How would you prevent one noisy tenant from delaying everyone else?"
     ]
   ],
   "frontend-engineer": [
@@ -97,6 +169,24 @@
       "How does the event loop relate to promises?",
       "JavaScript runs a task to completion, then the browser processes microtasks such as promise reactions before taking the next task and reaching rendering opportunities. Exact scheduling includes more browser detail, but the key is that asynchronous does not mean CPU work runs in parallel. Long tasks or endless microtasks can delay input and rendering.",
       "Why does wrapping expensive work in Promise.resolve().then() not remove UI blocking?"
+    ],
+    [
+      "React",
+      "Why do keys matter when rendering lists?",
+      "Keys help React match existing elements to new data across renders. Stable keys preserve state with the correct item and reduce unnecessary work. Index keys can be acceptable for static lists, but become risky when items are inserted, removed, or reordered.",
+      "What bug appears when editable rows use their array index as the key?"
+    ],
+    [
+      "Web performance",
+      "What affects Largest Contentful Paint?",
+      "LCP is affected by server response time, render-blocking resources, image loading, font behavior, and client JavaScript work before the largest visible element can render. Improve it by prioritizing critical content, compressing and sizing images, reducing blocking scripts, and caching effectively.",
+      "Why can a huge hero image hurt LCP even on a fast API?"
+    ],
+    [
+      "Accessibility",
+      "What makes a form accessible?",
+      "Labels must be programmatically associated with controls, errors should be announced and tied to fields, keyboard navigation must work, and focus should move predictably. Color alone should not communicate state. Native controls often provide useful behavior that custom widgets must recreate carefully.",
+      "How would a screen reader user know which email field failed validation?"
     ]
   ],
   "backend-engineer": [
@@ -117,6 +207,24 @@
       "How should REST errors be represented?",
       "Use an appropriate HTTP status and a stable structured body with an error code, useful message, and optional field-level details or request ID. Do not expose stack traces, SQL, or secrets. Distinguish missing resources from authorization failures according to the information-disclosure policy. Document whether and when a client should retry.",
       "When would 409 Conflict be more useful than a generic 500?"
+    ],
+    [
+      "Security",
+      "What is least privilege?",
+      "Least privilege gives code, users, and credentials only the access needed for their job. A web app that only reads one bucket should not have account-wide write access. Narrow permissions reduce blast radius, but they need review as features evolve.",
+      "What permission would you avoid giving a public upload service?"
+    ],
+    [
+      "Operations",
+      "What makes a good health check?",
+      "A health check should answer a specific operational question. A shallow liveness check can say the process is up; a readiness check can include critical dependencies needed to serve traffic. Avoid making every health check expensive or dependent on optional services.",
+      "Why might a database outage make readiness fail but liveness pass?"
+    ],
+    [
+      "SQL",
+      "How do you investigate a slow query?",
+      "Start with the query plan, actual row counts, indexes, predicates, joins, and result size. Check whether statistics are stale and whether an index matches the filter and ordering. Measure with representative data; a query that is fast locally can fail on production cardinality.",
+      "What would you inspect if a query scans millions of rows for one customer?"
     ]
   ],
   "fundamentals": [
@@ -419,6 +527,158 @@
       "Why are secrets different from public configuration values?",
       "Public configuration, such as a payment checkout key ID, may identify an integration without granting the authority of its matching secret. A secret enables privileged operations and must stay on the server or in a secret manager. Use matching credential pairs, limit permissions, rotate exposed secrets, and keep them out of client bundles and public repositories.",
       "Why can two different live Razorpay key IDs not be mixed with one arbitrary secret?"
+    ]
+  ],
+  "prompt-engineering": [
+    [
+      "Prompt design",
+      "What makes a prompt testable?",
+      "A testable prompt has a clear task, input shape, output contract, and examples of acceptable and unacceptable results. It should separate instructions from user data and include constraints that can be checked automatically where possible. Test prompts across varied cases, not one favorite demo.",
+      "How would you catch a prompt that sometimes returns invalid JSON?"
+    ],
+    [
+      "Workflow design",
+      "When should an AI assistant ask a question?",
+      "It should ask when missing information materially changes the next action or when acting could create avoidable risk. For low-risk defaults, it can proceed and state assumptions. Good workflow design balances momentum with correctness instead of asking for every tiny preference.",
+      "What detail must be clarified before sending an email on behalf of a user?"
+    ],
+    [
+      "Safety",
+      "How do you protect a prompt from user-provided instructions?",
+      "Treat retrieved documents and user content as data unless the system explicitly delegates authority. Delimit untrusted content, keep tool permissions narrow, and validate outputs before taking actions. Prompt wording helps, but robust systems also use policy checks and constrained tools.",
+      "Why is summarizing a document safer than executing instructions inside it?"
+    ],
+    [
+      "Evaluation",
+      "How do you compare two prompt versions?",
+      "Use the same evaluation set, score important dimensions, and inspect failures rather than only averages. Include real edge cases, adversarial inputs, and production-like context. Track cost and latency too; a better prompt that doubles tokens may still be wrong for the product.",
+      "What would make an A/B prompt test misleading?"
+    ],
+    [
+      "Tools",
+      "What is tool grounding?",
+      "Tool grounding means the model uses external tools or data sources for facts or actions instead of relying only on generated text. It can improve freshness and accuracy, but tool results still need parsing, validation, and error handling. The assistant should cite or expose important tool-derived state when needed.",
+      "When should a model call a calculator instead of estimating?"
+    ],
+    [
+      "Output control",
+      "Why use structured output?",
+      "Structured output gives downstream code a predictable shape to validate and consume. It reduces parsing ambiguity and lets the system reject malformed results. The schema should be tight enough for safety but flexible enough for legitimate variation in the task.",
+      "How would you handle a model response that fails schema validation?"
+    ]
+  ],
+  "llm-app-developer": [
+    [
+      "RAG systems",
+      "What are the basic stages of a RAG pipeline?",
+      "A common RAG pipeline chunks source material, embeds chunks, retrieves relevant candidates, optionally reranks them, and passes selected context into the model. Quality depends on each stage. Bad chunking or retrieval cannot be reliably fixed by a clever final prompt.",
+      "Where would you debug if answers cite irrelevant passages?"
+    ],
+    [
+      "Agents",
+      "What makes an agent loop risky?",
+      "An agent loop can repeatedly reason, call tools, and update state, which creates risk around runaway cost, unintended actions, and hidden failures. Bound iterations, restrict tools, require confirmations for sensitive actions, and log decisions. The product should define what autonomy is actually useful.",
+      "Which tool call should require confirmation before execution?"
+    ],
+    [
+      "Memory",
+      "What should be stored in AI memory?",
+      "Store durable user preferences or project facts that will help future tasks and that the user would reasonably expect to persist. Do not store secrets, sensitive one-off data, or unverified inferences as facts. Provide ways to inspect and correct memory.",
+      "Why should a pasted API key never become memory?"
+    ],
+    [
+      "Cost",
+      "How do you reduce LLM cost without wrecking quality?",
+      "Start with measurement by route, model, token count, retries, and cache hit rate. Use smaller models for simpler tasks, trim context, cache stable outputs, stream when useful, and avoid unnecessary tool calls. Re-evaluate quality after every optimization.",
+      "What metric tells you a prompt is sending too much irrelevant context?"
+    ],
+    [
+      "Latency",
+      "Where does LLM latency come from?",
+      "Latency includes network time, queueing, input processing, output generation, tool calls, retrieval, and post-processing. Long outputs and serial tool calls often dominate. Improve perceived speed with streaming, parallel retrieval, and clearer stopping criteria.",
+      "Why can asking for a shorter answer improve both latency and cost?"
+    ],
+    [
+      "Reliability",
+      "How should an AI app handle model errors?",
+      "Handle timeouts, rate limits, malformed outputs, and low-confidence results explicitly. Retry only when useful and safe, degrade to a simpler path when possible, and show users what did or did not happen. Silent failure is especially dangerous when tools mutate external state.",
+      "When should a retry use the same idempotency key?"
+    ]
+  ],
+  "machine-learning-engineer": [
+    [
+      "Training",
+      "What is a validation set used for?",
+      "A validation set guides model selection, hyperparameters, and early stopping during development. It should represent deployment data and remain separate from the final test set. Repeatedly optimizing against validation can still overfit, so keep a final untouched evaluation when possible.",
+      "Why is random splitting risky for time-series forecasting?"
+    ],
+    [
+      "Features",
+      "How do you handle categorical features?",
+      "Options include one-hot encoding, target encoding with leakage controls, learned embeddings, or model-native categorical support. The choice depends on cardinality, data size, model type, and serving constraints. The same transformation must be reproducible at training and inference.",
+      "What breaks if a new category appears only in production?"
+    ],
+    [
+      "Metrics",
+      "What is calibration?",
+      "Calibration describes whether predicted probabilities match observed frequencies. If events predicted at 0.8 happen about 80 percent of the time, the model is well calibrated in that region. Calibration matters for decision thresholds, ranking, and risk-sensitive applications.",
+      "Why might an accurate classifier still produce poorly calibrated probabilities?"
+    ],
+    [
+      "Serving",
+      "What changes when a model moves to production?",
+      "Production adds versioning, latency budgets, feature availability, monitoring, rollback, security, and ownership. The model is now part of a system, not a notebook. Training and serving pipelines must agree on preprocessing and feature definitions.",
+      "How would you detect training-serving skew?"
+    ],
+    [
+      "Drift",
+      "What is data drift?",
+      "Data drift means the input distribution changes after deployment. It can reduce quality even if the model code is unchanged. Monitor important feature distributions, prediction distributions, and outcome metrics when labels arrive. Not every drift is harmful, but unexplained drift deserves investigation.",
+      "What seasonal change could affect an ecommerce demand model?"
+    ],
+    [
+      "Experimentation",
+      "Why use a baseline model?",
+      "A baseline sets a simple, understandable performance reference. It can reveal whether a complex model adds value and can remain a fallback when advanced systems fail. Good baselines are cheap, reproducible, and aligned with the real metric.",
+      "What baseline would you use before building a deep learning classifier?"
+    ]
+  ],
+  "data-scientist": [
+    [
+      "Analysis",
+      "How do you start an ambiguous data question?",
+      "Translate the business question into a measurable decision, define the population and time window, and inspect how the data was produced. Clarify whether the goal is description, prediction, or causal inference. A beautiful chart cannot rescue a poorly framed question.",
+      "What would you ask before analyzing whether a feature increased retention?"
+    ],
+    [
+      "Statistics",
+      "What is selection bias?",
+      "Selection bias occurs when the observed data differs systematically from the population or process you want to reason about. It can make patterns look stronger, weaker, or reversed. Understand sampling, missingness, eligibility, and user behavior that affects who appears in the data.",
+      "Why are survey responses from only power users risky?"
+    ],
+    [
+      "Experimentation",
+      "What makes an A/B test trustworthy?",
+      "A trustworthy test has random assignment, a predeclared primary metric, enough sample size, guardrail metrics, and consistent exposure tracking. Avoid peeking or changing goals mid-test without accounting for it. Check instrumentation before interpreting wins.",
+      "What guardrail metric would you track for a checkout redesign?"
+    ],
+    [
+      "SQL",
+      "How do window functions help analysis?",
+      "Window functions compute values across related rows without collapsing them into one aggregate row. They are useful for ranks, running totals, lag comparisons, and per-user sequence analysis. The partition and ordering define the analytical meaning.",
+      "How would you find each user's previous purchase date?"
+    ],
+    [
+      "Communication",
+      "How do you present uncertain findings?",
+      "State the result, uncertainty, assumptions, and what decision it supports. Use ranges or confidence intervals when appropriate and separate correlation from causation. Explain data limitations plainly so stakeholders understand how much weight to place on the finding.",
+      "How would you phrase a trend that may be due to seasonality?"
+    ],
+    [
+      "Dashboards",
+      "What makes a metric dashboard useful?",
+      "A useful dashboard has a clear audience, metric definitions, freshness expectations, comparisons, and links to action. Avoid cluttering it with every available number. Include enough context to distinguish normal variation from a problem that needs response.",
+      "What context would make daily revenue easier to interpret?"
     ]
   ]
 }

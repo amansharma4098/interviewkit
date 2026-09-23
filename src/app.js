@@ -127,6 +127,18 @@ function saveReceipt(value) {
     JSON.stringify([...receipts, value]),
   );
 }
+async function downloadKitPDF(id, token) {
+  const response = await fetch(`/downloads/${id}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!response.ok) throw Error((await response.json()).error);
+  const url = URL.createObjectURL(await response.blob());
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = `PrepTrick-${id}.pdf`;
+  anchor.click();
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+}
 function toast(message) {
   const node = document.querySelector("#toast");
   node.textContent = message;
@@ -176,11 +188,23 @@ modal.addEventListener("click", (event) => {
 });
 const closeButton = () =>
   `<button type="button" class="icon-button close-modal" data-action="close" aria-label="Close dialog" title="Close">${icon("x")}</button>`;
+const categories = () => [
+  ["All kits", "layers"],
+  ...Array.from(new Set(state.kits.map((k) => k.category))).map((category) => [
+    category,
+    category === "Engineering"
+      ? "code-2"
+      : category === "AI & Data"
+        ? "brain-circuit"
+        : "network",
+  ]),
+];
+const kitActionLabel = (kit) => (kit.price === 0 ? "Download free" : "Buy now");
 
 function card(kit) {
   return `<article class="kit-card">
     <a class="kit-visual ${kit.color}" href="#kit/${kit.id}" aria-label="View ${kit.title} kit"><span class="visual-label">${escape(kit.label)}</span><img src="/covers/${kit.id}.png" width="420" height="594" alt="${kit.title} PDF cover" ${kit.number > "03" ? 'loading="lazy"' : 'fetchpriority="high"'} /><span class="format-tag">${icon("file-text")}PDF KIT</span><span class="visual-arrow">${icon("arrow-up-right")}</span></a>
-    <div class="kit-body"><div class="kit-meta"><span>${escape(kit.experience)}${kit.experience.includes("years") ? " experience" : ""}</span><span>${kit.questions} Q&As</span></div><h2><a href="#kit/${kit.id}">${escape(kit.title)}</a></h2><p>${escape(kit.description)}</p><div class="kit-bottom"><div class="price">${money(kit.price)}<span>one-time</span></div><div class="kit-actions"><button class="small-button buy-button" data-action="checkout" data-id="${kit.id}">Buy now ${icon("shopping-cart")}</button><a class="text-button" href="#kit/${kit.id}">View kit ${icon("arrow-up-right")}</a></div></div></div>
+    <div class="kit-body"><div class="kit-meta"><span>${escape(kit.experience)}${kit.experience.includes("years") ? " experience" : ""}</span><span>${kit.questions} Q&As</span></div><h2><a href="#kit/${kit.id}">${escape(kit.title)}</a></h2><p>${escape(kit.description)}</p><div class="kit-bottom"><div class="price">${money(kit.price)}<span>${kit.price === 0 ? "for now" : "one-time"}</span></div><div class="kit-actions"><button class="small-button buy-button" data-action="checkout" data-id="${kit.id}">${kitActionLabel(kit)} ${icon(kit.price === 0 ? "download" : "shopping-cart")}</button><a class="text-button" href="#kit/${kit.id}">View kit ${icon("arrow-up-right")}</a></div></div></div>
   </article>`;
 }
 function filteredKits() {
@@ -213,20 +237,27 @@ function grid() {
 }
 function catalogPage() {
   main.innerHTML = `<section class="catalog-intro wrap"><div><p class="eyebrow"><span></span>PREPARE WITH PURPOSE</p><h1>Interview prep kits<span>.</span></h1><p class="intro-copy">Know the fundamentals. Understand the follow-ups.<br>Walk into your next interview with a clearer head.</p></div><div class="intro-note">${icon("book-open")}<div>Less searching.<br><strong>More understanding.</strong></div></div></section>
-  <div class="trust-row wrap"><span>${icon("file-text")} Thoughtfully written Q&As</span><span>${icon("download")} PDFs to keep & revisit</span><span>${icon("check-check")} One purchase. No subscription.</span></div>
+  <div class="trust-row wrap"><span>${icon("file-text")} Expanded Q&A previews</span><span>${icon("download")} Free PDFs for now</span><span>${icon("brain-circuit")} More AI tracks added</span></div>
   <section class="catalog-layout wrap" aria-label="Browse interview kits">
-    <aside class="filters"><div class="filter-heading"><h2>Find your focus</h2><button class="icon-button" data-action="clear-filters" title="Reset filters" aria-label="Reset filters">${icon("refresh-cw")}</button></div><fieldset><legend>BY DISCIPLINE</legend>${["All kits", "Engineering", "AI & Data", "System Design"].map((c, i) => `<label class="category-option"><input type="radio" name="category" value="${c}" ${state.category === c ? "checked" : ""}><span>${icon(["layers", "code-2", "brain-circuit", "network"][i])}${c}</span><small>${c === "All kits" ? 6 : initialKits.filter((k) => k.category === c).length}</small></label>`).join("")}</fieldset><fieldset class="level-filter"><legend>EXPERIENCE</legend>${["All experience", "Early career", "Experienced", "All levels"].map((c) => `<label class="radio-option"><input type="radio" name="level" value="${c}" ${state.level === c ? "checked" : ""}><span>${c}</span></label>`).join("")}</fieldset></aside>
+    <aside class="filters"><div class="filter-heading"><h2>Find your focus</h2><button class="icon-button" data-action="clear-filters" title="Reset filters" aria-label="Reset filters">${icon("refresh-cw")}</button></div><fieldset><legend>BY DISCIPLINE</legend>${categories()
+      .map(
+        ([c, iconName]) =>
+          `<label class="category-option"><input type="radio" name="category" value="${c}" ${state.category === c ? "checked" : ""}><span>${icon(iconName)}${c}</span><small>${c === "All kits" ? state.kits.length : state.kits.filter((k) => k.category === c).length}</small></label>`,
+      )
+      .join(
+        "",
+      )}</fieldset><fieldset class="level-filter"><legend>EXPERIENCE</legend>${["All experience", "Early career", "Experienced", "All levels"].map((c) => `<label class="radio-option"><input type="radio" name="level" value="${c}" ${state.level === c ? "checked" : ""}><span>${c}</span></label>`).join("")}</fieldset></aside>
     <div class="catalog-content"><div class="catalog-toolbar"><label class="search-box">${icon("search")}<input id="kit-search" type="search" placeholder="Search roles, skills, or topics" aria-label="Search interview kits" value="${escape(state.query)}"></label><label class="sort-box"><span>Sort:</span><select id="kit-sort" aria-label="Sort kits"><option value="recommended" ${state.sort === "recommended" ? "selected" : ""}>Recommended</option><option value="price-low" ${state.sort === "price-low" ? "selected" : ""}>Price: low to high</option><option value="price-high" ${state.sort === "price-high" ? "selected" : ""}>Price: high to low</option></select></label></div><div class="results-heading"><h2>Your next step starts here</h2><span id="results-count" aria-live="polite"></span></div>${state.apiError ? '<div class="inline-notice">The store is temporarily offline. You can still explore the catalog. <button data-action="reload">Retry</button></div>' : ""}<div class="kit-grid" id="kit-grid"></div><div class="catalog-footnote">${icon("circle-help")}Original practice material. No company affiliation or interview guarantees.</div></div>
   </section>
   <section class="fundamental-band"><div class="wrap"><div><p class="eyebrow">A GOOD PLACE TO BEGIN</p><h2>Strong answers start<br>with the fundamentals.</h2><a href="#fundamentals" class="button light-button">Practice free questions ${icon("arrow-up-right")}</a></div><div class="sample-question"><span>QUESTION 01 / 50</span><h3>What does Big O tell you,<br>and what does it leave out?</h3><p>Go beyond the definition. Learn the reasoning, then try a follow-up.</p><a href="#fundamentals" aria-label="Read the Big O answer">${icon("arrow-right")}</a></div></div></section>
   <section class="faq-section wrap"><div><p class="eyebrow">BEFORE YOU BEGIN</p><h2>A few good questions.</h2><p>The practical details, answered.</p></div><div>${[
     [
       "What is included in a kit?",
-      "Each PDF contains original interview practice questions, model answers, follow-up prompts, and a practice worksheet. You can preview three questions on every kit page before deciding.",
+      "Each PDF contains original interview practice questions, model answers, follow-up prompts, and a practice worksheet. The site now includes expanded previews for every track, including new AI-focused courses.",
     ],
     [
       "How do I receive my PDF?",
-      "After a verified payment, your PDF becomes available in My library. Save the recovery code shown with your purchase so you can restore it on another browser. No email delivery is promised.",
+      "While the catalog is free, use the Download free button on any kit. Paid checkout can be re-enabled later after the payment website review is complete.",
     ],
     [
       "Are these actual company interview questions?",
@@ -238,9 +269,11 @@ function catalogPage() {
     ],
     [
       "Are paid kits available now?",
-      state.checkoutEnabled
-        ? "Checkout is available through Razorpay. The final amount is shown before payment, and your download unlocks after payment is confirmed."
-        : "Paid checkout is being prepared. All prices and question previews are available now.",
+      state.kits.every((kit) => kit.price === 0)
+        ? "All kits are free for now. Payments are disabled while the catalog is being expanded and reviewed."
+        : state.checkoutEnabled
+          ? "Checkout is available through Razorpay. The final amount is shown before payment, and your download unlocks after payment is confirmed."
+          : "Paid checkout is being prepared. All prices and question previews are available now.",
     ],
   ]
     .map(
@@ -257,7 +290,7 @@ function kitPage(id) {
     main.innerHTML = `<section class="wrap page-heading"><h1>Kit not found.</h1><a class="button" href="#kits">Browse all kits</a></section>`;
     return;
   }
-  main.innerHTML = `<section class="wrap detail-page"><a class="back-link" href="#kits">${icon("arrow-left")}All interview kits</a><div class="detail-grid"><div class="detail-cover ${kit.color}"><img src="/covers/${kit.id}.png" alt="${kit.title} PDF cover" width="420" height="594"><span>${icon("file-text")}${kit.questions} questions & answers</span></div><div class="detail-copy"><p class="eyebrow">${escape(kit.category)} / KIT ${kit.number}</p><h1>${escape(kit.title)}</h1><p class="detail-subtitle">${escape(kit.subtitle)}</p><p>${escape(kit.description)}</p><div class="detail-tags"><span>${escape(kit.experience)}</span><span>PDF download</span><span>English</span></div><h2>Inside this kit</h2><ul class="included-list">${kit.topics.map((t) => `<li>${icon("check")}${escape(t)}</li>`).join("")}<li>${icon("check")}Follow-up prompts & practice worksheet</li></ul><div class="purchase-row"><div class="price">${money(kit.price)}<span>one-time purchase</span></div><button class="button" data-action="checkout" data-id="${id}" aria-describedby="purchase-availability">Buy now ${icon("shopping-cart")}</button></div><p class="purchase-note" id="purchase-availability">${icon(state.checkoutEnabled ? "shield-check" : "circle-help")}${state.checkoutEnabled ? "Secure payment via Razorpay. No subscription." : "Paid checkout opens soon. Preview the content below."}</p></div></div><section class="preview-section"><div><p class="eyebrow">A LOOK INSIDE</p><h2>Try a few questions.</h2><p>A sample from this kit, with the full answers.</p></div><div>${kit.samples ? kit.samples.map((q, i) => questionRow(q, i, false)).join("") : `<p>${state.apiError ? "Samples could not load. Please retry." : "Loading sample answers..."}</p><button class="small-button" data-action="reload">Refresh ${icon("refresh-cw")}</button>`}</div></section></section>`;
+  main.innerHTML = `<section class="wrap detail-page"><a class="back-link" href="#kits">${icon("arrow-left")}All interview kits</a><div class="detail-grid"><div class="detail-cover ${kit.color}"><img src="/covers/${kit.id}.png" alt="${kit.title} PDF cover" width="420" height="594"><span>${icon("file-text")}${kit.questions} questions & answers</span></div><div class="detail-copy"><p class="eyebrow">${escape(kit.category)} / KIT ${kit.number}</p><h1>${escape(kit.title)}</h1><p class="detail-subtitle">${escape(kit.subtitle)}</p><p>${escape(kit.description)}</p><div class="detail-tags"><span>${escape(kit.experience)}</span><span>PDF download</span><span>English</span></div><h2>Inside this kit</h2><ul class="included-list">${kit.topics.map((t) => `<li>${icon("check")}${escape(t)}</li>`).join("")}<li>${icon("check")}Follow-up prompts & practice worksheet</li></ul><div class="purchase-row"><div class="price">${money(kit.price)}<span>${kit.price === 0 ? "for now" : "one-time purchase"}</span></div><button class="button" data-action="checkout" data-id="${id}" aria-describedby="purchase-availability">${kitActionLabel(kit)} ${icon(kit.price === 0 ? "download" : "shopping-cart")}</button></div><p class="purchase-note" id="purchase-availability">${icon(kit.price === 0 ? "download" : state.checkoutEnabled ? "shield-check" : "circle-help")}${kit.price === 0 ? "This kit is free while PrepTrick expands the catalog." : state.checkoutEnabled ? "Secure payment via Razorpay. No subscription." : "Paid checkout opens soon. Preview the content below."}</p></div></div><section class="preview-section"><div><p class="eyebrow">A LOOK INSIDE</p><h2>Try a few questions.</h2><p>A sample from this kit, with the full answers.</p></div><div>${kit.samples ? kit.samples.map((q, i) => questionRow(q, i, false)).join("") : `<p>${state.apiError ? "Samples could not load. Please retry." : "Loading sample answers..."}</p><button class="small-button" data-action="reload">Refresh ${icon("refresh-cw")}</button>`}</div></section></section>`;
   icons();
 }
 function questionRow(question, index, practice = true) {
@@ -341,6 +374,12 @@ function checkout(id) {
     return;
   }
   if (!kit) return;
+  if (kit.price === 0) {
+    openModal(
+      `${closeButton()}<p class="eyebrow">PREPTRICK / FREE KIT</p><h2 id="modal-title">Download ${escape(kit.title)}.</h2><div class="checkout-product"><img src="/covers/${kit.id}.png" alt="" width="60" height="85"><div><h3>${escape(kit.title)}</h3><p>${kit.questions} Q&As · PDF download</p></div><strong>Free</strong></div><p class="modal-description">This kit is free for now. No payment, card, UPI, or recovery code is required.</p><button class="button full" data-action="download-free" data-id="${kit.id}">Download PDF ${icon("download")}</button>`,
+    );
+    return;
+  }
   if (!state.checkoutEnabled) {
     openModal(
       `${closeButton()}<p class="eyebrow">PREPTRICK / CHECKOUT</p><h2 id="modal-title">Checkout opens soon.</h2><div class="checkout-product"><img src="/covers/${kit.id}.png" alt="" width="60" height="85"><div><h3>${escape(kit.title)}</h3><p>${kit.questions} Q&As · PDF download</p></div><strong>${money(kit.price)}</strong></div><p class="modal-description">Online payments are not available yet. This kit cannot be purchased until checkout is enabled. No payment has been taken.</p><button class="button full" data-action="close">Continue browsing ${icon("arrow-right")}</button>`,
@@ -432,7 +471,7 @@ const policies = {
   about: {
     title: "About PrepTrick",
     content:
-      '<h3>Focused preparation for engineering interviews</h3><p>PrepTrick publishes original interview-preparation PDFs for software engineering, frontend, backend, AI, and system design. Each kit contains 50 questions, suggested answers, follow-up prompts, and a practice worksheet.</p><h3>Digital study material</h3><p>Kits are downloadable PDFs in English, priced individually in Indian rupees. There is no subscription and no physical shipment. Fundamental questions and selected kit answers are available to practice on the website before purchasing.</p><h3>Independent and practical</h3><p>The material covers common engineering concepts and trade-offs. It is not affiliated with an employer and does not guarantee particular interview questions or hiring outcomes.</p><p><a class="text-button" href="/pricing">Browse kits and pricing</a></p>',
+      '<h3>Focused preparation for engineering interviews</h3><p>PrepTrick publishes original interview-preparation PDFs for software engineering, frontend, backend, AI, and system design. Each kit contains original questions, suggested answers, follow-up prompts, and a practice worksheet.</p><h3>Digital study material</h3><p>Kits are downloadable PDFs in English. They are free while the catalog is being expanded and the payment website review is resolved. There is no subscription and no physical shipment.</p><h3>Independent and practical</h3><p>The material covers common engineering concepts and trade-offs. It is not affiliated with an employer and does not guarantee particular interview questions or hiring outcomes.</p><p><a class="text-button" href="/pricing">Browse the free catalog</a></p>',
   },
   privacy: {
     title: "Privacy",
@@ -442,12 +481,12 @@ const policies = {
   terms: {
     title: "Terms of use",
     content:
-      "<h3>The material</h3><p>Kits contain original educational practice questions, suggested answers, and follow-up prompts in English. They are independent of employers and are not a guarantee of interview questions, hiring outcomes, or professional certification.</p><h3>Your purchase</h3><p>The displayed INR price is the total charged for one personal-use PDF kit. There is no subscription. Review the preview and experience level before purchasing. Paid access starts only after the payment provider confirms capture.</p><h3>Personal study license</h3><p>You may download, store, and print the purchased kit for your own study. You may not resell, redistribute, or publish the full material without permission. Content may be corrected over time; the purchased edition remains downloadable while the service is available.</p><h3>Access and support</h3><p>Keep your recovery code to restore access on another device. Do not share it publicly. For technical problems, lost access, corrections, or purchase disputes, use the support form. These terms do not exclude rights that cannot legally be excluded.</p>",
+      "<h3>The material</h3><p>Kits contain original educational practice questions, suggested answers, and follow-up prompts in English. They are independent of employers and are not a guarantee of interview questions, hiring outcomes, or professional certification.</p><h3>Free access period</h3><p>The catalog is currently free to download while PrepTrick expands the material and resolves payment website approval. There is no subscription, checkout, card entry, or UPI payment required for zero-price kits.</p><h3>Personal study license</h3><p>You may download, store, and print each kit for your own study. You may not resell, redistribute, or publish the full material without permission. Content may be corrected over time; available editions remain downloadable while the service is available.</p><h3>Access and support</h3><p>For technical problems, unavailable downloads, corrections, or support questions, use the support form. These terms do not exclude rights that cannot legally be excluded.</p>",
   },
   refunds: {
     title: "Refunds & delivery",
     content:
-      "<h3>Digital delivery</h3><p>This is a digital PDF product. No physical item is shipped. After payment is captured and verified, download the kit from My library. If confirmation is delayed, refresh your library; avoid paying again until the original payment status is resolved.</p><h3>Getting help</h3><p>For duplicate charges, an unavailable download, or a materially incorrect product, contact support promptly with the purchase reference and a description. Please submit requests within 7 days where possible; this does not limit mandatory consumer rights. Do not send card numbers, passwords, or API secrets.</p><h3>Review and refunds</h3><p>Requests are reviewed individually. Approved refunds are processed through the original payment provider, and the bank or provider controls processing time. A refunded purchase loses future download access. A change of mind after downloading is assessed case by case rather than automatically approved.</p><h3>Before checkout opens</h3><p>Paid checkout is not yet available. Product pricing and question previews remain available.</p>",
+      "<h3>Digital delivery</h3><p>This is a digital PDF product. No physical item is shipped. During the free access period, use Download free on any kit page or catalog card. No payment is taken for zero-price kits.</p><h3>Getting help</h3><p>For an unavailable download, materially incorrect product, or support question, contact support with the kit name and a description. Do not send card numbers, passwords, or API secrets.</p><h3>Refunds</h3><p>Because checkout is disabled while all kits are free, there is no PrepTrick payment to refund. If paid checkout is re-enabled later, refund terms will be updated before accepting payments again.</p>",
   },
 };
 function policy(name) {
@@ -530,17 +569,20 @@ document.addEventListener("click", async (event) => {
   if (action === "download") {
     button.disabled = true;
     try {
-      const response = await fetch(`/downloads/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!response.ok) throw Error((await response.json()).error);
-      const url = URL.createObjectURL(await response.blob());
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = `PrepTrick-${id}.pdf`;
-      anchor.click();
-      setTimeout(() => URL.revokeObjectURL(url), 30000);
+      await downloadKitPDF(id, token);
       toast("Your PDF download has started.");
+    } catch (error) {
+      toast(error.message);
+    } finally {
+      button.disabled = false;
+    }
+  }
+  if (action === "download-free") {
+    button.disabled = true;
+    try {
+      await downloadKitPDF(id);
+      toast("Your free PDF download has started.");
+      closeModal();
     } catch (error) {
       toast(error.message);
     } finally {

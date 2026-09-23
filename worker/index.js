@@ -351,6 +351,9 @@ async function route(request, env) {
   }
   if (request.method === "GET" && path.startsWith("/downloads/")) {
     await rateLimit(request, env, "download", 60);
+    const kitId = decodeURIComponent(path.slice("/downloads/".length));
+    const kit = kits.find((k) => k.id === kitId);
+    if (kit?.price === 0) return pdf(env, kit.id);
     const order = await receipt(request, env);
     if (order.status !== "paid" || path !== `/downloads/${order.kit_id}`)
       fail(403, "A completed purchase is required for this kit.");
@@ -423,9 +426,7 @@ async function route(request, env) {
         "/pricing",
       ].includes(path)
     ) {
-      return env.ASSETS.fetch(
-        new Request(new URL("/", request.url), request),
-      );
+      return env.ASSETS.fetch(new Request(new URL("/", request.url), request));
     }
     if (
       path === "/" ||
@@ -439,10 +440,11 @@ async function route(request, env) {
   return json({ error: "Page not found." }, 404);
 }
 async function pdf(env, id) {
+  const sourceId = kits.find((kit) => kit.id === id)?.pdfId || id;
   const file = await env.DB.prepare(
     "SELECT object_key, byte_size, sha256 FROM kit_files WHERE kit_id = ?",
   )
-    .bind(id)
+    .bind(sourceId)
     .first();
   const asset = file ? await env.PDFS.get(file.object_key) : null;
   if (!asset || asset.size !== file.byte_size)
